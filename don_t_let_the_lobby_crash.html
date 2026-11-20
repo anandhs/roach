@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Don't Let the Lobby Crash! — Keep the Game Online!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap');
+
+        :root {
+            --bg-indigo: #17153b;
+            --panel-indigo: #232054;
+            --electric-cyan: #22d3ee;
+            --sunny-yellow: #facc15;
+            --mint-green: #34d399;
+            --coral-pink: #fb7185;
+            --grape-purple: #c084fc;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-indigo);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Playful Polka-Grid Arcade Background */
+        .arcade-bg {
+            background-color: #17153b;
+            background-image: 
+                radial-gradient(rgba(34, 211, 238, 0.14) 2px, transparent 2px),
+                radial-gradient(rgba(250, 204, 21, 0.08) 2px, #17153b 2px);
+            background-size: 36px 36px;
+            background-position: 0 0, 18px 18px;
+        }
+
+        /* Tactile Toy / Board-Game 3D Buttons */
+        .toy-btn {
+            transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.1s ease, filter 0.15s ease;
+            box-shadow: 0 5px 0 rgba(10, 8, 30, 0.75);
+        }
+        .toy-btn:hover:not(:disabled) {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 0 rgba(10, 8, 30, 0.75);
+        }
+        .toy-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 rgba(10, 8, 30, 0.75);
+        }
+        .toy-btn:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(10, 8, 30, 0.5);
+        }
+
+        /* Spotlight Glow for Guided Practice */
+        @keyframes spotlight-pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 4px #facc15, 0 0 24px 6px rgba(250, 204, 21, 0.65);
+                transform: scale(1.02);
+            }
+            50% {
+                box-shadow: 0 0 0 7px #fde047, 0 0 34px 10px rgba(250, 204, 21, 0.9);
+                transform: scale(1.045);
+            }
+        }
+        .coach-spotlight {
+            animation: spotlight-pulse 1s infinite ease-in-out !important;
+            z-index: 30;
+            position: relative;
+        }
+
+        /* Server Shake & Bounce Animations */
+        @keyframes server-shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-4px) rotate(-1.5deg); }
+            50% { transform: translateX(4px) rotate(1.5deg); }
+            75% { transform: translateX(-3px) rotate(-1deg); }
+        }
+        .animate-server-shake {
+            animation: server-shake 0.35s infinite ease-in-out;
+        }
+
+        @keyframes float-bob {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bob {
+            animation: float-bob 2.2s infinite ease-in-out;
+        }
+
+        /* Floating Juice Popups (+100 SAVED!, COOLING...) */
+        @keyframes float-up-fade {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(0.7);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -14px) scale(1.1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -55px) scale(0.95);
+            }
+        }
+        .floating-popup {
+            position: fixed;
+            pointer-events: none;
+            z-index: 60;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            text-shadow: 0 3px 0 #0f172a, 0 -1px 0 #0f172a, 2px 0 0 #0f172a, -2px 0 0 #0f172a;
+            animation: float-up-fade 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            white-space: nowrap;
+        }
+
+        /* Flying Event Emoji Banner */
+        @keyframes event-swoosh {
+            0% { transform: scale(0.5) rotate(-8deg); opacity: 0; }
+            60% { transform: scale(1.08) rotate(2deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .animate-event-pop {
+            animation: event-swoosh 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Animated Traffic Stream Pipes */
+        @keyframes stream-dots {
+            0% { background-position: 0 0; }
+            100% { background-position: 32px 0; }
+        }
+        .pipe-healthy {
+            background-image: repeating-linear-gradient(90deg, #34d399 0px, #34d399 10px, #059669 10px, #059669 16px);
+            background-size: 32px 100%;
+            animation: stream-dots 0.7s linear infinite;
+        }
+        .pipe-surge {
+            background-image: repeating-linear-gradient(90deg, #facc15 0px, #fb7185 12px, #e11d48 12px, #e11d48 16px);
+            background-size: 32px 100%;
+            animation: stream-dots 0.35s linear infinite;
+        }
+        .pipe-cut {
+            background-image: repeating-linear-gradient(45deg, #fb7185 0px, #fb7185 8px, #4c0519 8px, #4c0519 16px);
+        }
+
+        /* Glitchy Buggy Update Overlay */
+        .buggy-tint {
+            box-shadow: inset 0 0 0 3px #c084fc, 0 0 20px rgba(192, 132, 252, 0.45);
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 70;
+        }
+    </style>
+</head>
+<body class="arcade-bg min-h-screen lg:h-screen flex flex-col justify-between p-2 sm:p-3 lg:overflow-hidden">
+
+    <!-- Confetti Celebration Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- ==========================================================
+         1. TOP HUD: HAPPY PLAYERS METER, TIMER, ENERGY & BYTE COACH
+    =========================================================== -->
+    <header class="max-w-7xl w-full mx-auto flex flex-col gap-2 shrink-0">
+        <!-- Main Status Bar -->
+        <div class="bg-[#232054]/95 border-2 border-indigo-400/30 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-xl flex flex-wrap items-center justify-between gap-2">
+            
+            <!-- Game Logo & Mode Pill -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-2xl shadow-md border-2 border-white/30">
+                    🤖
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base sm:text-xl font-bold text-white tracking-wide leading-none">Don't Let the Lobby Crash!</h1>
+                        <span id="mode-pill" class="px-2 py-0.5 rounded-full bg-amber-400 text-indigo-950 font-extrabold text-[10px] uppercase tracking-wider">
+                            Practice
+                        </span>
+                    </div>
+                    <p class="text-[11px] sm:text-xs text-cyan-300 font-bold">Keep the Game Online!</p>
+                </div>
+            </div>
+
+            <!-- Kid-Friendly Big Telemetry Gauges -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 flex-1 max-w-2xl">
+                <!-- Happy Players / Uptime Meter -->
+                <div id="hud-happiness-box" class="bg-indigo-950/90 border-2 border-emerald-400/50 rounded-xl px-2.5 py-1 flex flex-col justify-center">
+                    <div class="flex items-center justify-between text-[10px] sm:text-xs font-extrabold text-emerald-300">
+                        <span>😊 Happy Players</span>
+                        <span class="hidden sm:inline text-emerald-200/80">Goal: 99.9%</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <div class="flex-1 h-2.5 bg-indigo-900 rounded-full overflow-hidden border border-white/10">
+                            <div id="hud-happiness-bar" class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-300" style="width: 100%;"></div>
+                        </div>
+                        <span id="hud-uptime-text" class="font-mono font-extrabold text-xs sm:text-sm text-white">100%</span>
+                    </div>
+                </div>
+
+                <!-- Shift Countdown -->
+                <div class="bg-indigo-950/90 border-2 border-cyan-400/40 rounded-xl px-2.5 py-1 flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] sm:text-xs font-extrabold text-cyan-300">⏱️ Time Left</div>
+                        <div id="hud-timer" class="font-display text-lg sm:text-xl font-bold text-white leading-none mt-0.5">60s</div>
+                    </div>
+                    <div class="text-right hidden sm:block">
+                        <div class="text-[10px] font-bold text-indigo-300">Players</div>
+                        <div id="hud-players-count" class="font-mono text-xs font-extrabold text-amber-300">1.2M</div>
+                    </div>
+                </div>
+
+                <!-- Action Energy Bolts -->
+                <div class="bg-indigo-950/90 border-2 border-amber-400/50 rounded-xl px-2.5 py-1 flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] sm:text-xs font-extrabold text-amber-300">⚡ Energy</div>
+                        <div id="hud-energy" class="font-display text-lg sm:text-xl font-bold text-amber-300 leading-none mt-0.5">40</div>
+                    </div>
+                    <span class="px-1.5 py-0.5 rounded-lg bg-amber-400/20 text-amber-200 font-mono text-[10px] font-bold">+5/s</span>
+                </div>
+            </div>
+
+            <!-- Sound & Menu Controls -->
+            <div class="flex items-center gap-1.5">
+                <button id="btn-sound" onclick="toggleSound()" title="Mute / Unmute Sound" class="toy-btn w-9 h-9 rounded-xl bg-indigo-800 hover:bg-indigo-700 border-2 border-indigo-400/40 flex items-center justify-center text-base cursor-pointer">
+                    🔊
+                </button>
+                <button onclick="showTitleScreen()" title="Back to Menu" class="toy-btn px-2.5 h-9 rounded-xl bg-indigo-800 hover:bg-indigo-700 border-2 border-indigo-400/40 text-xs font-extrabold text-indigo-100 cursor-pointer">
+                    Menu
+                </button>
+            </div>
+        </div>
+
+        <!-- BYTE THE SRE BOT: Friendly Live Coach & Event Banner -->
+        <div id="byte-banner" class="bg-gradient-to-r from-indigo-900/95 via-[#2b266b] to-indigo-900/95 border-2 border-cyan-400/50 rounded-2xl px-3.5 py-2 shadow-lg flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <div id="byte-avatar" class="w-10 h-10 rounded-2xl bg-cyan-400 text-indigo-950 flex items-center justify-center text-2xl shrink-0 shadow-md animate-bob border-2 border-white">
+                    🤖
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-400/20 text-cyan-300">
+                            Byte the SRE Bot
+                        </span>
+                        <span id="active-status-pills" class="flex items-center gap-1.5"></span>
+                    </div>
+                    <p id="byte-message" class="text-xs sm:text-sm md:text-base font-extrabold text-white truncate mt-0.5">
+                        Welcome to the Lobby! Let's do a super quick 2-step warm-up!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Skip Practice Button (Visible only during Guided Practice) -->
+            <button id="btn-skip-practice" onclick="startMainShift(false)" class="toy-btn hidden shrink-0 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-indigo-950 font-extrabold text-xs cursor-pointer">
+                Skip Practice →
+            </button>
+        </div>
+    </header>
+
+    <!-- ==========================================================
+         2. CENTER GAME BOARD: 3 WORLD REGIONS & CUTE SERVER PODS
+    =========================================================== -->
+    <main class="max-w-7xl w-full mx-auto my-2 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-2.5 sm:gap-3 min-h-0">
+        <!-- Populated dynamically with West Coast, East Coast, and Europe/Asia Regions -->
+        <div id="board-regions" class="col-span-1 lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3 h-full"></div>
+    </main>
+
+    <!-- ==========================================================
+         3. BOTTOM TACTILE POWER DECK (KID-FRIENDLY + SRE PRO TERMS)
+    =========================================================== -->
+    <footer class="max-w-7xl w-full mx-auto bg-[#232054]/95 border-2 border-indigo-400/30 rounded-2xl p-2.5 sm:p-3 shadow-2xl shrink-0">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2.5">
+            
+            <!-- Power 1: Cool & Reboot -->
+            <button id="btn-power-reboot" onclick="usePowerReboot()" class="toy-btn p-2 sm:p-2.5 rounded-2xl bg-gradient-to-b from-cyan-400 to-cyan-500 text-indigo-950 border-2 border-cyan-200 flex flex-col justify-between text-left cursor-pointer">
+                <div class="flex items-center justify-between w-full">
+                    <span class="text-xl sm:text-2xl">❄️</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-indigo-950 text-amber-300 font-mono text-xs font-extrabold">⚡ 10</span>
+                </div>
+                <div class="mt-1">
+                    <div class="font-display font-bold text-sm sm:text-base leading-tight">Cool & Reboot</div>
+                    <div class="text-[10px] sm:text-[11px] font-extrabold text-indigo-900/80">Restart Server</div>
+                </div>
+            </button>
+
+            <!-- Power 2: Add Extra Servers -->
+            <button id="btn-power-scale" onclick="usePowerAddServers()" class="toy-btn p-2 sm:p-2.5 rounded-2xl bg-gradient-to-b from-emerald-400 to-emerald-500 text-indigo-950 border-2 border-emerald-200 flex flex-col justify-between text-left cursor-pointer">
+                <div class="flex items-center justify-between w-full">
+                    <span class="text-xl sm:text-2xl">🚀</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-indigo-950 text-amber-300 font-mono text-xs font-extrabold">⚡ 20</span>
+                </div>
+                <div class="mt-1">
+                    <div class="font-display font-bold text-sm sm:text-base leading-tight">Add Extra Servers</div>
+                    <div class="text-[10px] sm:text-[11px] font-extrabold text-indigo-900/80">Auto-Scale</div>
+                </div>
+            </button>
+
+            <!-- Power 3: Move Players -->
+            <button id="btn-power-move" onclick="usePowerMovePlayers()" class="toy-btn p-2 sm:p-2.5 rounded-2xl bg-gradient-to-b from-amber-300 to-amber-400 text-indigo-950 border-2 border-amber-100 flex flex-col justify-between text-left cursor-pointer">
+                <div class="flex items-center justify-between w-full">
+                    <span class="text-xl sm:text-2xl">🔀</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-indigo-950 text-amber-300 font-mono text-xs font-extrabold">⚡ 15</span>
+                </div>
+                <div class="mt-1">
+                    <div class="font-display font-bold text-sm sm:text-base leading-tight">Move Players</div>
+                    <div class="text-[10px] sm:text-[11px] font-extrabold text-indigo-900/80">Traffic Reroute</div>
+                </div>
+            </button>
+
+            <!-- Power 4: Undo Bad Update -->
+            <button id="btn-power-undo" onclick="usePowerUndoUpdate()" class="toy-btn p-2 sm:p-2.5 rounded-2xl bg-gradient-to-b from-purple-400 to-purple-500 text-indigo-950 border-2 border-purple-200 flex flex-col justify-between text-left cursor-pointer">
+                <div class="flex items-center justify-between w-full">
+                    <span class="text-xl sm:text-2xl">⏪</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-indigo-950 text-amber-300 font-mono text-xs font-extrabold">⚡ 20</span>
+                </div>
+                <div class="mt-1">
+                    <div class="font-display font-bold text-sm sm:text-base leading-tight">Undo Bad Update</div>
+                    <div class="text-[10px] sm:text-[11px] font-extrabold text-indigo-900/80">Code Rollback</div>
+                </div>
+            </button>
+
+            <!-- Power 5: Crash Shield -->
+            <button id="btn-power-shield" onclick="usePowerCrashShield()" class="toy-btn col-span-2 sm:col-span-1 p-2 sm:p-2.5 rounded-2xl bg-gradient-to-b from-rose-400 to-rose-500 text-white border-2 border-rose-200 flex flex-col justify-between text-left cursor-pointer">
+                <div class="flex items-center justify-between w-full">
+                    <span class="text-xl sm:text-2xl">🛡️</span>
+                    <span id="shield-price-badge" class="px-2 py-0.5 rounded-lg bg-indigo-950 text-amber-300 font-mono text-xs font-extrabold">⚡ 25</span>
+                </div>
+                <div class="mt-1">
+                    <div class="font-display font-bold text-sm sm:text-base leading-tight">Crash Shield</div>
+                    <div class="text-[10px] sm:text-[11px] font-extrabold text-rose-100">Chaos Protection (8s)</div>
+                </div>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ==========================================================
+         MODAL 1: COLORFUL ARCADE TITLE SCREEN
+    =========================================================== -->
+    <div id="title-modal" class="fixed inset-0 z-50 bg-[#110f2e]/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#232054] border-4 border-cyan-400 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl text-center space-y-5 relative overflow-hidden">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-400/20 border border-cyan-300/40 text-cyan-300 font-extrabold text-xs uppercase tracking-wider">
+                🎮 Career Day Mini-Game • Site Reliability Engineering
+            </div>
+
+            <div class="space-y-2">
+                <div class="text-5xl sm:text-6xl animate-bob">🎮🛡️🚀</div>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
+                    Don't Let the Lobby Crash!
+                </h2>
+                <p class="text-lg sm:text-xl font-display font-semibold text-amber-300">
+                    Keep the Game Online!
+                </p>
+                <p class="text-sm sm:text-base text-indigo-100 max-w-md mx-auto leading-relaxed">
+                    Millions of squads are dropping into the lobby! Stop overheating servers, shark cable bites, and laggy updates so nobody gets kicked mid-match!
+                </p>
+            </div>
+
+            <!-- Cute Face Legend -->
+            <div class="grid grid-cols-4 gap-2 bg-indigo-950/80 border-2 border-indigo-400/30 rounded-2xl p-3 text-xs">
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl">😄</span>
+                    <span class="font-extrabold text-emerald-300 mt-1">Happy</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl">😰</span>
+                    <span class="font-extrabold text-amber-300 mt-1">Hot / Lagging</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl">😵</span>
+                    <span class="font-extrabold text-rose-400 mt-1">Crashed!</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl">😎</span>
+                    <span class="font-extrabold text-cyan-300 mt-1">Shielded</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                <button onclick="startGuidedPractice()" class="toy-btn flex-1 py-4 px-5 rounded-2xl bg-gradient-to-b from-amber-300 to-amber-400 text-indigo-950 font-display font-bold text-lg sm:text-xl border-2 border-amber-100 cursor-pointer">
+                    ▶️ Play! (Quick Practice + Game)
+                </button>
+                <button onclick="startMainShift(false)" class="toy-btn py-4 px-4 rounded-2xl bg-indigo-800 hover:bg-indigo-700 text-cyan-200 font-display font-bold text-sm sm:text-base border-2 border-cyan-400/40 cursor-pointer">
+                    Skip Practice →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+         MODAL 2: MISSION REPORT & SRE BADGE SCREEN
+    =========================================================== -->
+    <div id="report-modal" class="fixed inset-0 z-50 bg-[#110f2e]/90 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-[#232054] border-4 border-amber-400 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl text-center space-y-5 my-auto">
+            <div id="report-medal" class="text-6xl sm:text-7xl animate-bob">🏆</div>
+
+            <div class="space-y-1">
+                <div class="text-xs font-extrabold uppercase tracking-widest text-amber-300">Official Lobby SRE Badge Earned</div>
+                <h2 id="report-rank-title" class="text-3xl sm:text-4xl font-bold text-white">
+                    Legendary Clutch Engineer!
+                </h2>
+                <p id="report-rank-sub" class="text-sm sm:text-base text-cyan-200 font-bold">
+                    GG! You hit the legendary 99.9% "Three Nines" Uptime with zero lobby disconnects!
+                </p>
+            </div>
+
+            <!-- 3 Simple Kid-Friendly Stats -->
+            <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
+                <div class="bg-indigo-950/90 border-2 border-emerald-400/50 rounded-2xl p-3">
+                    <div class="text-xl sm:text-2xl">😊</div>
+                    <div id="stat-players-happy" class="font-display text-xl sm:text-2xl font-bold text-emerald-300 mt-0.5">18.4M</div>
+                    <div class="text-[11px] font-extrabold text-indigo-200">Players Happy</div>
+                </div>
+                <div class="bg-indigo-950/90 border-2 border-amber-400/50 rounded-2xl p-3">
+                    <div class="text-xl sm:text-2xl">🦸</div>
+                    <div id="stat-disasters-stopped" class="font-display text-xl sm:text-2xl font-bold text-amber-300 mt-0.5">8</div>
+                    <div class="text-[11px] font-extrabold text-indigo-200">Clutch Saves</div>
+                </div>
+                <div class="bg-indigo-950/90 border-2 border-cyan-400/50 rounded-2xl p-3">
+                    <div class="text-xl sm:text-2xl">⚡</div>
+                    <div id="stat-uptime-score" class="font-display text-xl sm:text-2xl font-bold text-cyan-300 mt-0.5">99.94%</div>
+                    <div class="text-[11px] font-extrabold text-indigo-200">Uptime Score</div>
+                </div>
+            </div>
+
+            <!-- One-Sentence Real-World SRE Takeaway -->
+            <div class="bg-indigo-950/90 border-2 border-cyan-400/40 rounded-2xl p-4 text-left flex items-start gap-3">
+                <span class="text-2xl shrink-0">🤖</span>
+                <div>
+                    <div class="text-xs font-extrabold uppercase text-cyan-300">What You Just Did Like a Real SRE:</div>
+                    <p id="report-takeaway" class="text-xs sm:text-sm font-bold text-white mt-0.5 leading-relaxed">
+                        You balanced squad traffic, spun up extra lobby servers during huge crowds, and rolled back buggy patches so millions of players stayed lag-free!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Replay & Boss Rush Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <button onclick="startMainShift(false)" class="toy-btn py-3.5 px-5 rounded-2xl bg-gradient-to-b from-emerald-400 to-emerald-500 text-indigo-950 font-display font-bold text-base sm:text-lg border-2 border-emerald-200 cursor-pointer">
+                    🔄 Play Again
+                </button>
+                <button onclick="startMainShift(true)" class="toy-btn py-3.5 px-5 rounded-2xl bg-gradient-to-b from-rose-400 to-rose-500 text-white font-display font-bold text-base sm:text-lg border-2 border-rose-200 cursor-pointer">
+                    🔥 Hard Mode: Boss Rush!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================================
+        // SYNTHESIZED ARCADE SOUND EFFECTS (WEB AUDIO API)
+        // ==========================================================
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function ensureAudio() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (AC) audioCtx = new AC();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        function playBeep(freq, type = 'sine', duration = 0.12, vol = 0.12, delay = 0) {
+            if (!soundEnabled) return;
+            ensureAudio();
+            if (!audioCtx) return;
+
+            const start = audioCtx.currentTime + delay;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(vol, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(start);
+            osc.stop(start + duration);
+        }
+
+        const SoundFX = {
+            tap: () => playBeep(540, 'sine', 0.08, 0.1),
+            coolReboot: () => {
+                playBeep(360, 'triangle', 0.1, 0.14, 0);
+                playBeep(540, 'triangle', 0.1, 0.14, 0.07);
+                playBeep(820, 'sine', 0.16, 0.14, 0.14);
+            },
+            powerUp: () => {
+                playBeep(440, 'sine', 0.1, 0.12, 0);
+                playBeep(660, 'sine', 0.12, 0.12, 0.07);
+                playBeep(990, 'sine', 0.18, 0.14, 0.14);
+            },
+            shield: () => {
+                playBeep(520, 'triangle', 0.12, 0.13, 0);
+                playBeep(780, 'triangle', 0.22, 0.15, 0.09);
+            },
+            bonk: () => {
+                playBeep(200, 'sawtooth', 0.14, 0.1, 0);
+                playBeep(150, 'sawtooth', 0.18, 0.1, 0.1);
+            },
+            alertPop: () => {
+                playBeep(680, 'square', 0.09, 0.08, 0);
+                playBeep(520, 'square', 0.12, 0.08, 0.1);
+            },
+            victory: () => {
+                playBeep(523.25, 'triangle', 0.14, 0.15, 0);
+                playBeep(659.25, 'triangle', 0.14, 0.15, 0.11);
+                playBeep(783.99, 'triangle', 0.14, 0.15, 0.22);
+                playBeep(1046.5, 'triangle', 0.35, 0.18, 0.33);
+            }
+        };
+
+        // ==========================================================
+        // FLOATING POPUP TEXT & CONFETTI JUICE
+        // ==========================================================
+        function spawnPopup(x, y, text, color = '#facc15') {
+            const el = document.createElement('div');
+            el.className = 'floating-popup text-base sm:text-lg';
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            el.style.color = color;
+            el.textContent = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1150);
+        }
+
+        function spawnCenterPopup(text, color = '#34d399') {
+            spawnPopup(window.innerWidth / 2, window.innerHeight * 0.42, text, color);
+        }
+
+        function launchConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const colors = ['#22d3ee', '#facc15', '#34d399', '#fb7185', '#c084fc'];
+            const pieces = Array.from({ length: 110 }, () => ({
+                x: Math.random() * canvas.width,
+                y: -20 - Math.random() * canvas.height * 0.4,
+                w: 8 + Math.random() * 8,
+                h: 6 + Math.random() * 6,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                vy: 3 + Math.random() * 5,
+                vx: (Math.random() - 0.5) * 4,
+                rot: Math.random() * 360,
+                vrot: (Math.random() - 0.5) * 10
+            }));
+
+            let frames = 0;
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.rot += p.vrot;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rot * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                });
+                frames++;
+                if (frames < 150) {
+                    requestAnimationFrame(draw);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            draw();
+        }
+
+        // ==========================================================
+        // GAME STATE & REGION DATA
+        // ==========================================================
+        const MAIN_SHIFT_SECONDS = 60;
+        let loopTimer = null;
+        let game = {};
+
+        function makeFreshGame(mode = 'practice', bossRush = false) {
+            return {
+                mode, // 'practice' | 'main' | 'over'
+                bossRush,
+                practiceStep: 1, // 1 = tap overheating server, 2 = tap Add Extra Servers, 3 = ready!
+                timeLeft: mode === 'practice' ? 30 : MAIN_SHIFT_SECONDS,
+                elapsed: 0,
+                uptime: 100.0,
+                energy: 40,
+                playersMillions: 1.2,
+                happyPlayersTotal: 0,
+                disastersStopped: 0,
+                extraServersTimer: 0,
+                shieldTimer: 0,
+                buggyUpdateActive: false,
+                triggeredEvents: {},
+                regions: [
+                    {
+                        id: 'west',
+                        name: 'West Coast',
+                        icon: '🌴',
+                        playersLoad: 35, // % crowd pressure
+                        cableCut: false,
+                        servers: [
+                            { id: 'w1', name: 'Bot W-1', heat: 25, crashed: false, issue: '' },
+                            { id: 'w2', name: 'Bot W-2', heat: 30, crashed: false, issue: '' }
+                        ]
+                    },
+                    {
+                        id: 'east',
+                        name: 'East Coast',
+                        icon: '🗽',
+                        playersLoad: 40,
+                        cableCut: false,
+                        servers: [
+                            { id: 'e1', name: 'Bot E-1', heat: 32, crashed: false, issue: '' },
+                            { id: 'e2', name: 'Bot E-2', heat: 28, crashed: false, issue: '' }
+                        ]
+                    },
+                    {
+                        id: 'world',
+                        name: 'Europe & Asia',
+                        icon: '🌍',
+                        playersLoad: 35,
+                        cableCut: false,
+                        servers: [
+                            { id: 'g1', name: 'Bot G-1', heat: 26, crashed: false, issue: '' },
+                            { id: 'g2', name: 'Bot G-2', heat: 30, crashed: false, issue: '' }
+                        ]
+                    }
+                ]
+            };
+        }
+
+        // ==========================================================
+        // SCREEN & FLOW CONTROLS
+        // ==========================================================
+        function showTitleScreen() {
+            clearInterval(loopTimer);
+            document.getElementById('report-modal').classList.add('hidden');
+            document.getElementById('report-modal').classList.remove('flex');
+            document.getElementById('title-modal').classList.remove('hidden');
+            document.getElementById('title-modal').classList.add('flex');
+        }
+
+        function startGuidedPractice() {
+            ensureAudio();
+            SoundFX.tap();
+            document.getElementById('title-modal').classList.add('hidden');
+            document.getElementById('title-modal').classList.remove('flex');
+            document.getElementById('report-modal').classList.add('hidden');
+            document.getElementById('report-modal').classList.remove('flex');
+
+            game = makeFreshGame('practice', false);
+            // Set up Step 1 of Practice: Make East Coast Bot E-1 overheat so kid can tap it!
+            const targetServer = game.regions[1].servers[0];
+            targetServer.heat = 92;
+            targetServer.issue = 'Getting super hot!';
+
+            setByteCoach('👉 Step 1/2: Tap the sweating red server (Bot E-1) to Cool & Reboot it!');
+            document.getElementById('btn-skip-practice').classList.remove('hidden');
+            updateModePill();
+            renderGame();
+
+            clearInterval(loopTimer);
+            loopTimer = setInterval(tick, 500);
+        }
+
+        function startMainShift(bossRush = false) {
+            ensureAudio();
+            SoundFX.powerUp();
+            document.getElementById('title-modal').classList.add('hidden');
+            document.getElementById('title-modal').classList.remove('flex');
+            document.getElementById('report-modal').classList.add('hidden');
+            document.getElementById('report-modal').classList.remove('flex');
+            document.getElementById('btn-skip-practice').classList.add('hidden');
+
+            game = makeFreshGame('main', bossRush);
+            updateModePill();
+            setByteCoach(bossRush
+                ? '🔥 BOSS RUSH! Fast lag spikes incoming — don’t let the lobby crash!'
+                : '🚀 Match Live! Keep Happy Players at 99.9% for 60 seconds!');
+            renderGame();
+
+            clearInterval(loopTimer);
+            loopTimer = setInterval(tick, 500);
+        }
+
+        function updateModePill() {
+            const pill = document.getElementById('mode-pill');
+            if (game.mode === 'practice') {
+                pill.textContent = 'Warm-Up Practice';
+                pill.className = 'px-2.5 py-0.5 rounded-full bg-amber-400 text-indigo-950 font-extrabold text-[10px] uppercase tracking-wider';
+            } else if (game.bossRush) {
+                pill.textContent = '🔥 Boss Rush';
+                pill.className = 'px-2.5 py-0.5 rounded-full bg-rose-500 text-white font-extrabold text-[10px] uppercase tracking-wider animate-pulse';
+            } else {
+                pill.textContent = 'Live Shift';
+                pill.className = 'px-2.5 py-0.5 rounded-full bg-emerald-400 text-indigo-950 font-extrabold text-[10px] uppercase tracking-wider';
+            }
+        }
+
+        function setByteCoach(msg) {
+            document.getElementById('byte-message').textContent = msg;
+        }
+
+        // ==========================================================
+        // SIMULATION TICK (EVERY 0.5 SECONDS)
+        // ==========================================================
+        function tick() {
+            if (game.mode === 'over') return;
+
+            game.elapsed += 0.5;
+            game.timeLeft = Math.max(0, Math.ceil((game.mode === 'practice' ? 30 : MAIN_SHIFT_SECONDS) - game.elapsed));
+
+            // Regenerate Energy (+5/sec = +2.5 per tick)
+            game.energy = Math.min(100, +(game.energy + 2.5).toFixed(1));
+
+            // Decrement active power timers
+            if (game.extraServersTimer > 0) game.extraServersTimer = Math.max(0, game.extraServersTimer - 0.5);
+            if (game.shieldTimer > 0) game.shieldTimer = Math.max(0, game.shieldTimer - 0.5);
+
+            // PRACTICE MODE LOGIC
+            if (game.mode === 'practice') {
+                if (game.timeLeft <= 0) {
+                    startMainShift(false);
+                    return;
+                }
+                renderGame();
+                return;
+            }
+
+            // MAIN SHIFT DISASTER EVENTS
+            triggerMainShiftEvents();
+
+            // Update server temperatures & region load
+            let troubleCount = 0;
+            let totalOnlineM = 0;
+
+            game.regions.forEach(region => {
+                const regionPlayers = (region.playersLoad / 100) * 1.4;
+                if (!region.cableCut) totalOnlineM += regionPlayers;
+
+                // Effective cooling capacity in this region
+                const activeBots = region.servers.filter(s => !s.crashed).length;
+                const boostCapacity = game.extraServersTimer > 0 ? 1.6 : 0;
+                const totalCapacity = Math.max(0.5, activeBots + boostCapacity);
+
+                region.servers.forEach(srv => {
+                    if (srv.crashed) {
+                        srv.heat = 100;
+                        troubleCount += 1.5;
+                        return;
+                    }
+
+                    // Shield protects & cools servers!
+                    if (game.shieldTimer > 0) {
+                        srv.heat = Math.max(20, srv.heat - 7);
+                        srv.issue = '';
+                        return;
+                    }
+
+                    // Calculate target heat from crowd pressure
+                    const targetHeat = Math.min(96, Math.round((region.playersLoad / totalCapacity) * 1.15));
+                    let delta = (targetHeat - srv.heat) * 0.22;
+
+                    // Buggy update heats everything up fast!
+                    if (game.buggyUpdateActive) {
+                        delta += game.bossRush ? 6.5 : 4.5;
+                    }
+
+                    srv.heat = Math.max(18, Math.min(100, Math.round(srv.heat + delta)));
+
+                    if (srv.heat >= 100) {
+                        srv.crashed = true;
+                        srv.issue = game.buggyUpdateActive ? 'Buggy update crash!' : 'Overheated!';
+                        troubleCount += 1.5;
+                        SoundFX.bonk();
+                    } else if (srv.heat >= 72) {
+                        troubleCount += 0.4;
+                        if (!srv.issue) srv.issue = 'Getting hot!';
+                    } else {
+                        srv.issue = '';
+                    }
+                });
+
+                if (region.cableCut) {
+                    troubleCount += 2.0;
+                }
+            });
+
+            game.playersMillions = Math.max(0.4, +totalOnlineM.toFixed(1));
+            game.happyPlayersTotal += game.playersMillions * 0.5;
+
+            // Update Uptime %
+            if (troubleCount > 0) {
+                const drop = troubleCount * (game.bossRush ? 0.08 : 0.055);
+                game.uptime = Math.max(85.0, +(game.uptime - drop).toFixed(2));
+            } else if (game.uptime < 100) {
+                game.uptime = Math.min(100, +(game.uptime + 0.02).toFixed(2));
+            }
+
+            renderGame();
+
+            if (game.timeLeft <= 0) {
+                finishMainShift();
+            }
+        }
+
+        // ==========================================================
+        // FUN KID-FRIENDLY DISASTER EVENTS
+        // ==========================================================
+        function triggerMainShiftEvents() {
+            const t = game.elapsed;
+            const speed = game.bossRush ? 0.78 : 1.0;
+
+            // Event 1: Soda Spilled on Server!
+            if (t >= Math.round(5 * speed) && !game.triggeredEvents.e1) {
+                game.triggeredEvents.e1 = true;
+                if (game.shieldTimer <= 0) {
+                    const srv = game.regions[0].servers[1];
+                    srv.crashed = true;
+                    srv.heat = 100;
+                    srv.issue = '🥤 Soda spilled!';
+                    SoundFX.alertPop();
+                    setByteCoach('🥤 Oh no! Soda spilled on Bot W-2! Tap it to Cool & Reboot!');
+                }
+            }
+
+            // Event 2: Streamer Shoutout! (Crowd rushes East Coast)
+            if (t >= Math.round(14 * speed) && !game.triggeredEvents.e2) {
+                game.triggeredEvents.e2 = true;
+                game.regions[1].playersLoad = 95;
+                game.regions[0].playersLoad = 25;
+                game.regions[2].playersLoad = 25;
+                SoundFX.alertPop();
+                setByteCoach('📣 Streamer Live Event! Huge squad wave rushed East Coast! Tap Move Players or Add Extra Servers!');
+            }
+
+            // Event 3: Shark Nibbled the Ocean Cable!
+            if (t >= Math.round(25 * speed) && !game.triggeredEvents.e3) {
+                game.triggeredEvents.e3 = true;
+                if (game.shieldTimer <= 0) {
+                    game.regions[2].cableCut = true;
+                    game.regions[2].playersLoad = 85;
+                    SoundFX.alertPop();
+                    setByteCoach('🦈 A shark nibbled the Europe & Asia ocean cable! Tap Move Players (🔀) fast!');
+                } else {
+                    setByteCoach('🛡️ Crash Shield scared away a hungry shark! Nice!');
+                }
+            }
+
+            // Event 4: Glitchy Friday Update!
+            if (t >= Math.round(37 * speed) && !game.triggeredEvents.e4) {
+                game.triggeredEvents.e4 = true;
+                if (game.shieldTimer <= 0) {
+                    game.buggyUpdateActive = true;
+                    SoundFX.alertPop();
+                    setByteCoach('👾 Glitchy Season Patch! Everything is lagging out — hit Undo Bad Update (⏪)!');
+                } else {
+                    setByteCoach('🛡️ Crash Shield blocked a Glitchy Season Patch!');
+                }
+            }
+
+            // Event 5: Cat Video Goes Viral! (Final Rush)
+            if (t >= Math.round(48 * speed) && !game.triggeredEvents.e5) {
+                game.triggeredEvents.e5 = true;
+                game.regions.forEach(r => r.playersLoad = Math.min(95, r.playersLoad + 42));
+                SoundFX.alertPop();
+                setByteCoach('🏆 Finals Match & Viral Clip! Mega lobby rush — use Add Extra Servers (🚀) or Crash Shield (🛡️)!');
+            }
+        }
+
+        // ==========================================================
+        // PLAYER ACTIONS & GUIDED PRACTICE PROGRESSION
+        // ==========================================================
+        function tapServerPod(rIdx, sIdx, event) {
+            if (game.mode === 'over') return;
+            const region = game.regions[rIdx];
+            const srv = region.servers[sIdx];
+
+            // Practice Step 1 check
+            if (game.mode === 'practice' && game.practiceStep === 1) {
+                if (srv.heat >= 70 || srv.crashed) {
+                    srv.heat = 24;
+                    srv.crashed = false;
+                    srv.issue = '';
+                    SoundFX.coolReboot();
+                    if (event) spawnPopup(event.clientX, event.clientY, '❄️ COOLED & REBOOTED!', '#22d3ee');
+
+                    // Advance Practice to Step 2!
+                    game.practiceStep = 2;
+                    game.regions.forEach(r => r.playersLoad = 88);
+                    setByteCoach('🎉 Awesome! Step 2/2: A huge crowd just joined! Tap ADD EXTRA SERVERS (🚀) below!');
+                    renderGame();
+                } else {
+                    SoundFX.tap();
+                    setByteCoach('👉 Tap the glowing sweating server (Bot E-1) to cool it down!');
+                }
+                return;
+            }
+
+            if (game.energy < 10) {
+                SoundFX.bonk();
+                if (event) spawnPopup(event.clientX, event.clientY, 'Need ⚡10 Energy!', '#fb7185');
+                return;
+            }
+
+            if (!srv.crashed && srv.heat < 65) {
+                SoundFX.tap();
+                if (event) spawnPopup(event.clientX, event.clientY, 'Already Happy 😄', '#34d399');
+                return;
+            }
+
+            game.energy -= 10;
+            srv.heat = 24;
+            srv.crashed = false;
+            srv.issue = '';
+            game.disastersStopped++;
+            SoundFX.coolReboot();
+            const popupLabel = Math.random() > 0.45 ? '⚡ CLUTCH SAVE!' : '❄️ +100 SAVED!';
+            if (event) spawnPopup(event.clientX, event.clientY, popupLabel, '#22d3ee');
+            renderGame();
+        }
+
+        function usePowerReboot() {
+            if (game.mode === 'over') return;
+            // Find hottest or crashed server
+            let bestR = 0, bestS = 0, maxH = -1;
+            game.regions.forEach((r, rIdx) => {
+                r.servers.forEach((s, sIdx) => {
+                    const score = (s.crashed ? 200 : 0) + s.heat;
+                    if (score > maxH) {
+                        maxH = score;
+                        bestR = rIdx;
+                        bestS = sIdx;
+                    }
+                });
+            });
+            const btn = document.getElementById('btn-power-reboot').getBoundingClientRect();
+            tapServerPod(bestR, bestS, { clientX: btn.left + btn.width / 2, clientY: btn.top });
+        }
+
+        function usePowerAddServers() {
+            if (game.mode === 'over') return;
+            const btn = document.getElementById('btn-power-scale').getBoundingClientRect();
+
+            // Practice Step 2 completion!
+            if (game.mode === 'practice' && game.practiceStep === 2) {
+                game.extraServersTimer = 10;
+                game.regions.forEach(r => r.playersLoad = 35);
+                SoundFX.powerUp();
+                spawnPopup(btn.left + btn.width / 2, btn.top, '🚀 EXTRA LOBBY SERVERS!', '#34d399');
+                setByteCoach('🏆 GG! You nailed it! Starting your real 60-second lobby shift in 2 seconds...');
+                game.practiceStep = 3;
+                renderGame();
+                setTimeout(() => {
+                    if (game.mode === 'practice') startMainShift(false);
+                }, 2000);
+                return;
+            }
+
+            if (game.energy < 20) {
+                SoundFX.bonk();
+                spawnPopup(btn.left + btn.width / 2, btn.top, 'Need ⚡20 Energy!', '#fb7185');
+                return;
+            }
+
+            game.energy -= 20;
+            game.extraServersTimer = 14;
+            game.disastersStopped++;
+            SoundFX.powerUp();
+            spawnPopup(btn.left + btn.width / 2, btn.top, '🚀 +EXTRA LOBBIES!', '#34d399');
+            setByteCoach('🚀 Auto-Scale active! Extra cloud servers are handling the squad rush!');
+            renderGame();
+        }
+
+        function usePowerMovePlayers() {
+            if (game.mode === 'over') return;
+            const btn = document.getElementById('btn-power-move').getBoundingClientRect();
+
+            if (game.energy < 15) {
+                SoundFX.bonk();
+                spawnPopup(btn.left + btn.width / 2, btn.top, 'Need ⚡15 Energy!', '#fb7185');
+                return;
+            }
+
+            game.energy -= 15;
+            // Fix any shark cable cut & balance crowd evenly!
+            game.regions.forEach(r => {
+                r.cableCut = false;
+                r.playersLoad = 38;
+            });
+            game.disastersStopped++;
+            SoundFX.powerUp();
+            spawnPopup(btn.left + btn.width / 2, btn.top, '🔀 SQUADS BALANCED!', '#facc15');
+            setByteCoach('🔀 Traffic Rerouted! Squads are spread smoothly across all regions with zero lag!');
+            renderGame();
+        }
+
+        function usePowerUndoUpdate() {
+            if (game.mode === 'over') return;
+            const btn = document.getElementById('btn-power-undo').getBoundingClientRect();
+
+            if (!game.buggyUpdateActive) {
+                SoundFX.tap();
+                spawnPopup(btn.left + btn.width / 2, btn.top, 'No Bad Update Right Now!', '#c084fc');
+                return;
+            }
+
+            if (game.energy < 20) {
+                SoundFX.bonk();
+                spawnPopup(btn.left + btn.width / 2, btn.top, 'Need ⚡20 Energy!', '#fb7185');
+                return;
+            }
+
+            game.energy -= 20;
+            game.buggyUpdateActive = false;
+            game.disastersStopped++;
+            game.regions.forEach(r => r.servers.forEach(s => {
+                if (!s.crashed) s.heat = Math.max(25, s.heat - 25);
+            }));
+            SoundFX.powerUp();
+            spawnPopup(btn.left + btn.width / 2, btn.top, '⏪ BAD PATCH UNDONE!', '#c084fc');
+            setByteCoach('⏪ Rollback complete! The lobby is back on smooth, lag-free code!');
+            renderGame();
+        }
+
+        function usePowerCrashShield() {
+            if (game.mode === 'over') return;
+            const btn = document.getElementById('btn-power-shield').getBoundingClientRect();
+
+            if (game.energy < 25) {
+                SoundFX.bonk();
+                spawnPopup(btn.left + btn.width / 2, btn.top, 'Need ⚡25 Energy!', '#fb7185');
+                return;
+            }
+
+            game.energy -= 25;
+            game.shieldTimer = 8;
+            game.disastersStopped++;
+            SoundFX.shield();
+            spawnPopup(btn.left + btn.width / 2, btn.top, '🛡️ LOBBY SHIELDED (8s)!', '#22d3ee');
+            setByteCoach('🛡️ Crash Shield ON! Servers are cooling down and protected from lag spikes!');
+            renderGame();
+        }
+
+        // ==========================================================
+        // RENDER GAME BOARD & HUD
+        // ==========================================================
+        function renderGame() {
+            // 1. Top HUD
+            const uptimeVal = game.uptime;
+            document.getElementById('hud-uptime-text').textContent = `${uptimeVal.toFixed(1)}%`;
+            document.getElementById('hud-happiness-bar').style.width = `${Math.max(5, uptimeVal)}%`;
+            document.getElementById('hud-timer').textContent = `${game.timeLeft}s`;
+            document.getElementById('hud-players-count').textContent = `${game.playersMillions.toFixed(1)}M`;
+            document.getElementById('hud-energy').textContent = Math.floor(game.energy);
+
+            // Active status pills next to Byte
+            const pillsEl = document.getElementById('active-status-pills');
+            let pillsHtml = '';
+            if (game.extraServersTimer > 0) {
+                pillsHtml += `<span class="px-2 py-0.5 rounded-md bg-emerald-400 text-indigo-950 font-mono text-[10px] font-extrabold">🚀 Extra Servers ${Math.ceil(game.extraServersTimer)}s</span>`;
+            }
+            if (game.shieldTimer > 0) {
+                pillsHtml += `<span class="px-2 py-0.5 rounded-md bg-cyan-400 text-indigo-950 font-mono text-[10px] font-extrabold">🛡️ Shield ${Math.ceil(game.shieldTimer)}s</span>`;
+            }
+            if (game.buggyUpdateActive) {
+                pillsHtml += `<span class="px-2 py-0.5 rounded-md bg-purple-400 text-indigo-950 font-mono text-[10px] font-extrabold animate-pulse">👾 Buggy Update!</span>`;
+            }
+            pillsEl.innerHTML = pillsHtml;
+
+            // Practice Spotlights on Action Buttons
+            const btnReboot = document.getElementById('btn-power-reboot');
+            const btnScale = document.getElementById('btn-power-scale');
+            const btnMove = document.getElementById('btn-power-move');
+            const btnUndo = document.getElementById('btn-power-undo');
+            const btnShield = document.getElementById('btn-power-shield');
+
+            btnReboot.classList.toggle('coach-spotlight', game.mode === 'practice' && game.practiceStep === 1);
+            btnScale.classList.toggle('coach-spotlight', game.mode === 'practice' && game.practiceStep === 2);
+
+            // Smart helpful glow during main shift when a specific disaster hits!
+            const anyCableCut = game.regions.some(r => r.cableCut);
+            btnMove.classList.toggle('coach-spotlight', game.mode === 'main' && anyCableCut);
+            btnUndo.classList.toggle('coach-spotlight', game.mode === 'main' && game.buggyUpdateActive);
+
+            // Energy affordability
+            if (game.mode === 'main') {
+                btnReboot.disabled = game.energy < 10;
+                btnScale.disabled = game.energy < 20;
+                btnMove.disabled = game.energy < 15;
+                btnUndo.disabled = game.energy < 20;
+                btnShield.disabled = game.energy < 25;
+            } else {
+                btnReboot.disabled = false;
+                btnScale.disabled = false;
+                btnMove.disabled = true;
+                btnUndo.disabled = true;
+                btnShield.disabled = true;
+            }
+
+            // 2. Render 3 World Regions & Server Robots
+            const boardEl = document.getElementById('board-regions');
+            boardEl.innerHTML = game.regions.map((region, rIdx) => {
+                let pipeClass = 'pipe-healthy';
+                let regionBorder = 'border-indigo-400/35';
+                let crowdBadge = `<span class="px-2 py-0.5 rounded-lg bg-emerald-400/20 text-emerald-300 font-extrabold text-xs">😊 Smooth</span>`;
+
+                if (region.cableCut) {
+                    pipeClass = 'pipe-cut';
+                    regionBorder = 'border-rose-400 animate-server-shake';
+                    crowdBadge = `<span class="px-2 py-0.5 rounded-lg bg-rose-500 text-white font-extrabold text-xs animate-pulse">🦈 Cable Cut!</span>`;
+                } else if (region.playersLoad >= 75) {
+                    pipeClass = 'pipe-surge';
+                    regionBorder = 'border-amber-400';
+                    crowdBadge = `<span class="px-2 py-0.5 rounded-lg bg-amber-400 text-indigo-950 font-extrabold text-xs">🔥 Huge Crowd!</span>`;
+                }
+
+                if (game.buggyUpdateActive) {
+                    regionBorder += ' buggy-tint';
+                }
+
+                const serversHtml = region.servers.map((srv, sIdx) => {
+                    let face = '😄';
+                    let statusWord = 'Happy & Fast';
+                    let cardBg = 'bg-emerald-500/15 border-emerald-400/60 hover:border-emerald-300';
+                    let barFill = 'bg-emerald-400';
+                    let extraAnim = '';
+
+                    if (game.shieldTimer > 0) {
+                        face = '😎';
+                        statusWord = 'Shielded!';
+                        cardBg = 'bg-cyan-500/20 border-cyan-300';
+                        barFill = 'bg-cyan-300';
+                    } else if (srv.crashed) {
+                        face = '😵';
+                        statusWord = srv.issue || 'Crashed! Tap Me!';
+                        cardBg = 'bg-rose-500/25 border-rose-400';
+                        barFill = 'bg-rose-500';
+                        extraAnim = 'animate-server-shake';
+                    } else if (srv.heat >= 70) {
+                        face = '😰';
+                        statusWord = srv.issue || 'Overheating! Tap Me!';
+                        cardBg = 'bg-amber-400/20 border-amber-300';
+                        barFill = 'bg-amber-400';
+                        extraAnim = 'animate-server-shake';
+                    }
+
+                    // Practice Step 1 spotlight on East Coast Bot E-1
+                    if (game.mode === 'practice' && game.practiceStep === 1 && rIdx === 1 && sIdx === 0) {
+                        extraAnim += ' coach-spotlight';
+                    }
+
+                    return `
+                        <button onclick="tapServerPod(${rIdx}, ${sIdx}, event)"
+                            class="toy-btn w-full rounded-2xl border-2 p-2.5 sm:p-3 flex items-center gap-3 text-left cursor-pointer ${cardBg} ${extraAnim}">
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-950/90 border-2 border-white/15 flex items-center justify-center text-3xl sm:text-4xl shrink-0">
+                                ${face}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-display font-bold text-white text-sm sm:text-base">${srv.name}</span>
+                                    <span class="font-mono text-xs font-extrabold text-indigo-200">${srv.heat}°</span>
+                                </div>
+                                <div class="text-xs font-extrabold ${srv.crashed ? 'text-rose-300' : srv.heat >= 70 ? 'text-amber-300' : 'text-emerald-300'} truncate">
+                                    ${statusWord}
+                                </div>
+                                <div class="w-full h-2.5 bg-indigo-950 rounded-full overflow-hidden mt-1.5 border border-white/10">
+                                    <div class="h-full ${barFill} transition-all duration-300" style="width: ${srv.heat}%"></div>
+                                </div>
+                            </div>
+                        </button>
+                    `;
+                }).join('');
+
+                // Shiny extra cloud server pod when Add Extra Servers is active
+                const bonusPodHtml = game.extraServersTimer > 0 ? `
+                    <div class="rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-400/20 p-2 sm:p-2.5 flex items-center justify-between animate-event-pop">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">🤖✨</span>
+                            <div>
+                                <div class="font-display font-bold text-xs sm:text-sm text-emerald-200">Backup Cloud Bot</div>
+                                <div class="text-[10px] font-extrabold text-emerald-300">Helping with crowd!</div>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-lg bg-emerald-400 text-indigo-950 font-mono text-[10px] font-extrabold">EXTRA</span>
+                    </div>
+                ` : '';
+
+                return `
+                    <section class="bg-[#232054]/95 border-3 border-2 ${regionBorder} rounded-3xl p-3 sm:p-4 flex flex-col justify-between gap-2.5 shadow-xl">
+                        <div>
+                            <!-- Region Header -->
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">${region.icon}</span>
+                                    <h2 class="font-display font-bold text-base sm:text-lg text-white">${region.name}</h2>
+                                </div>
+                                ${crowdBadge}
+                            </div>
+
+                            <!-- Animated Player Traffic Pipe -->
+                            <div class="h-2.5 w-full rounded-full ${pipeClass} mb-3 border border-white/10"></div>
+
+                            <!-- Server Robot Pods -->
+                            <div class="space-y-2.5">
+                                ${serversHtml}
+                                ${bonusPodHtml}
+                            </div>
+                        </div>
+                    </section>
+                `;
+            }).join('');
+        }
+
+        // ==========================================================
+        // END OF SHIFT: MISSION REPORT & SRE BADGE
+        // ==========================================================
+        function finishMainShift() {
+            game.mode = 'over';
+            clearInterval(loopTimer);
+
+            const uptime = game.uptime;
+            const happyTotalM = (game.happyPlayersTotal).toFixed(1);
+
+            document.getElementById('stat-players-happy').textContent = `${happyTotalM}M`;
+            document.getElementById('stat-disasters-stopped').textContent = game.disastersStopped;
+            document.getElementById('stat-uptime-score').textContent = `${uptime.toFixed(2)}%`;
+
+            const medalEl = document.getElementById('report-medal');
+            const titleEl = document.getElementById('report-rank-title');
+            const subEl = document.getElementById('report-rank-sub');
+
+            if (uptime >= 99.0) {
+                medalEl.textContent = '🏆';
+                titleEl.textContent = 'Legendary Clutch Engineer!';
+                subEl.textContent = 'GG! You kept almost every single squad in the match through total chaos!';
+                SoundFX.victory();
+                launchConfetti();
+            } else if (uptime >= 96.5) {
+                medalEl.textContent = '⚡';
+                titleEl.textContent = 'Anti-Lag Hero!';
+                subEl.textContent = 'Awesome saves! You crushed lag spikes and kept the lobby alive!';
+                SoundFX.victory();
+                launchConfetti();
+            } else if (uptime >= 94.0) {
+                medalEl.textContent = '🛡️';
+                titleEl.textContent = 'Lobby Legend!';
+                subEl.textContent = 'Nice teamwork! You cooled hot servers and protected the game!';
+                SoundFX.victory();
+                launchConfetti();
+            } else {
+                medalEl.textContent = '🚀';
+                titleEl.textContent = 'Rookie Guardian!';
+                subEl.textContent = 'Good first match! Try tapping hot servers even faster next round!';
+                SoundFX.powerUp();
+            }
+
+            document.getElementById('report-modal').classList.remove('hidden');
+            document.getElementById('report-modal').classList.add('flex');
+        }
+
+        // Render initial background board on load
+        window.onload = () => {
+            game = makeFreshGame('practice', false);
+            renderGame();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Day: Site Reliability Engineering | Anand Hemmige</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Arcade / Tech Grid Background */
+        .bg-grid {
+            background-size: 36px 36px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        }
+        /* Custom animations */
+        @keyframes pulse-fast {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px) rotate(-1deg); }
+            40% { transform: translateX(6px) rotate(1deg); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-shake {
+            animation: shake 0.45s ease-in-out infinite;
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .arcade-btn {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+        }
+        .arcade-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+        }
+        .slide-enter {
+            animation: fadeSlideIn 0.35s ease-out forwards;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.99);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        /* Placeholder badge highlight */
+        .placeholder-tag {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1.5px dashed #f59e0b;
+            color: #fcd34d;
+            border-radius: 0.5rem;
+            padding: 0.25rem 0.6rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            display: inline-block;
+        }
+        /* Custom scrollbar for speaker notes */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-grid min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-900">
+
+    <!-- Top Navigation & Pacing Bar -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-3 sm:px-6 py-2.5">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand / Speaker Badge -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <!-- Shield / Heartbeat SVG Icon -->
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h2l1.5-3 2 6 1.5-3h2"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold">Career Day • Grades 6–8</div>
+                    <div class="text-sm font-bold text-slate-100 leading-tight">Anand Hemmige <span class="text-slate-400 font-normal hidden sm:inline">| Principal Engineer, SRE</span></div>
+                </div>
+            </div>
+
+            <!-- 25-Minute Presentation Timer & Pacing Indicator -->
+            <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
+                <div class="flex items-center gap-1.5">
+                    <span id="timer-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    <span id="timer-display" class="font-mono font-bold text-base sm:text-lg text-white tracking-wider">25:00</span>
+                </div>
+                <div class="hidden md:flex flex-col text-left border-l border-slate-700 pl-2.5 pr-1">
+                    <span class="text-[10px] uppercase font-mono text-slate-400">Target Slide Pace</span>
+                    <span id="pace-indicator" class="text-xs font-semibold text-cyan-300">Min 0–2</span>
+                </div>
+                <button id="timer-toggle-btn" onclick="toggleTimer()" title="Start/Pause 25-Minute Timer" class="ml-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition cursor-pointer">
+                    Start
+                </button>
+                <button onclick="resetTimer()" title="Reset Timer to 25:00" class="px-2 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer">
+                    ↺
+                </button>
+            </div>
+
+            <!-- Controls: Slide Jump & Presenter Notes Toggle -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleOverview()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition cursor-pointer">
+                    <span>Slides</span>
+                    <span id="slide-counter-top" class="font-mono text-cyan-400 font-bold">1/11</span>
+                </button>
+                <button id="notes-toggle-btn" onclick="toggleNotes()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="hidden sm:inline">Speaker Notes</span>
+                    <span class="sm:hidden">Notes</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Thin Progress Bar -->
+        <div class="w-full h-1.5 bg-slate-800 mt-2.5 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-400 via-purple-500 to-amber-400 transition-all duration-300" style="width: 9.09%;"></div>
+        </div>
+    </header>
+
+    <!-- Main Workspace: Slide Stage + Optional Presenter Notes Drawer -->
+    <main class="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 gap-5 overflow-hidden">
+        
+        <!-- Primary Slide Stage -->
+        <section id="slide-stage" class="flex-1 flex flex-col justify-between bg-slate-900/85 border-2 border-slate-800 rounded-3xl p-5 sm:p-8 lg:p-10 shadow-2xl relative overflow-y-auto min-h-[520px]">
+            <!-- Dynamic Slide Content Injected Here -->
+            <div id="slide-content" class="flex-1 flex flex-col justify-center"></div>
+
+            <!-- Bottom Slide Navigation Bar -->
+            <div class="mt-8 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4">
+                <button id="prev-btn" onclick="prevSlide()" class="arcade-btn px-4 sm:px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none text-slate-200 font-bold text-sm flex items-center gap-2 cursor-pointer">
+                    <span>←</span> <span>Previous</span>
+                </button>
+
+                <div class="hidden sm:flex items-center gap-1.5" id="slide-dots"></div>
+
+                <button id="next-btn" onclick="nextSlide()" class="arcade-btn px-5 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40 disabled:pointer-events-none text-slate-950 font-extrabold text-sm flex items-center gap-2 cursor-pointer">
+                    <span>Next Slide</span> <span>→</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Presenter Notes Drawer (Collapsible) -->
+        <aside id="notes-drawer" class="hidden lg:w-[400px] xl:w-[440px] bg-slate-900 border-2 border-amber-500/40 rounded-3xl p-5 flex-col justify-between shadow-2xl max-h-[82vh] overflow-y-auto">
+            <div>
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-xs font-bold uppercase">Presenter Guide</span>
+                        <span id="notes-timing" class="text-xs font-mono text-slate-400">0:00 – 2:00</span>
+                    </div>
+                    <button onclick="toggleNotes()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 rounded-lg hover:bg-slate-800 cursor-pointer">✕</button>
+                </div>
+
+                <!-- Audience Prompt Callout -->
+                <div id="notes-prompt-box" class="mb-4 p-3.5 rounded-2xl bg-cyan-950/50 border border-cyan-500/30">
+                    <div class="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold mb-1">🎤 Ask the Room</div>
+                    <p id="notes-prompt" class="text-sm text-cyan-100 font-medium leading-relaxed"></p>
+                </div>
+
+                <!-- Talking Points -->
+                <div class="space-y-3">
+                    <div class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">🗣️ Talking Points & Cues</div>
+                    <div id="notes-body" class="text-sm text-slate-200 space-y-3 leading-relaxed"></div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-3 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+                <span>Tip: Use <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 font-mono">←</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 font-mono">→</kbd> arrows</span>
+                <span class="text-amber-400 font-semibold">25-Min Total Plan</span>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Slide Overview Modal -->
+    <div id="overview-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-4xl w-full p-6 max-h-[85vh] overflow-y-auto shadow-2xl">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">25-Minute Presentation Map</h3>
+                    <p class="text-sm text-slate-400">Jump to any slide or check your pacing (Includes 5-min Game & Q&A block)</p>
+                </div>
+                <button onclick="toggleOverview()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer">Close ✕</button>
+            </div>
+            <div id="overview-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // SLIDE DATA & PRESENTER NOTES (11 SLIDES)
+        // ==========================================
+        const slides = [
+            {
+                id: 1,
+                title: "Keeping the Internet Alive!",
+                subtitle: "What happens behind the scenes so your favorite apps don't crash",
+                timeRange: "Min 0:00 – 1:30 (1.5 min)",
+                prompt: "Raise your hand if an app, game, or video has ever frozen RIGHT when you were about to win or hit the best part!",
+                notes: [
+                    "<strong>Welcome & Hook:</strong> Start with high energy! Get hands up right away with the opening question.",
+                    "<strong>Introduce Yourself:</strong> My name is <strong>Anand Hemmige</strong>, and I am a <strong>Principal Engineer in Site Reliability Engineering (SRE)</strong>.",
+                    "<span class='placeholder-tag'>[PLACEHOLDER: Anand's 2-sentence intro — e.g., what company/industry you work in, and one fun non-work fact or favorite game/app you use]</span>",
+                    "<strong>Set the Mission:</strong> Today we're exploring the secret job that keeps apps and games running 24/7—and at the end, you'll play our mini-game <em>Don't Let the Lobby Crash!</em>"
+                ],
+                render: () => `
+                    <div class="slide-enter text-center max-w-4xl mx-auto space-y-6">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 font-mono text-xs sm:text-sm font-bold">
+                            <span>⚡ CAREER DAY SPECIAL</span>
+                            <span>•</span>
+                            <span>GRADES 6–8</span>
+                        </div>
+                        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-purple-400 leading-tight">
+                            Keeping the Internet’s Lights On!
+                        </h1>
+                        <p class="text-lg sm:text-2xl text-slate-300 max-w-2xl mx-auto font-medium">
+                            How <span class="text-cyan-400 font-bold">Site Reliability Engineers</span> stop apps from crashing—and rescue them when they do.
+                        </p>
+
+                        <!-- Visual Arcade Banner -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 max-w-3xl mx-auto">
+                            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col items-center">
+                                <div class="text-3xl mb-1 animate-float">🎮</div>
+                                <div class="font-bold text-white text-sm">Multiplayer Games</div>
+                                <div class="text-xs text-slate-400">Zero lag, zero disconnects</div>
+                            </div>
+                            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col items-center">
+                                <div class="text-3xl mb-1 animate-float" style="animation-delay: 0.4s;">📺</div>
+                                <div class="font-bold text-white text-sm">Streaming & Videos</div>
+                                <div class="text-xs text-slate-400">No spinning wheel of doom</div>
+                            </div>
+                            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col items-center">
+                                <div class="text-3xl mb-1 animate-float" style="animation-delay: 0.8s;">💬</div>
+                                <div class="font-bold text-white text-sm">Messages & Maps</div>
+                                <div class="text-xs text-slate-400">Works every single second</div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <div class="inline-block bg-slate-800/90 border border-slate-700 rounded-2xl px-6 py-3">
+                                <div class="text-base sm:text-lg font-bold text-white">Anand Hemmige</div>
+                                <div class="text-xs sm:text-sm text-cyan-400 font-mono">Principal Engineer • Site Reliability Engineering (SRE)</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 2,
+                title: "The Nightmare: Error 503!",
+                subtitle: "What actually happens inside 'The Cloud' when you tap a button?",
+                timeRange: "Min 1:30 – 3:30 (2 min)",
+                prompt: "When you tap 'Play' on a video or join a game lobby, where does that request actually go? (Hint: 'The Cloud' isn't floating in the sky!)",
+                notes: [
+                    "<strong>Bust the Cloud Myth:</strong> Explain that 'The Cloud' is really millions of real computers (servers) sitting in giant buildings called data centers, connected by cables under the ocean and underground.",
+                    "<strong>Interactive Poll:</strong> Have students click their #1 most annoying tech fail on the screen (or vote by show of hands) to see the live tally!",
+                    "<strong>Connect to SRE:</strong> Software developers build the cool new features (new game skins, video filters). Site Reliability Engineers make sure the giant buildings full of computers don't catch metaphorical fire when millions of people use those features at once."
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-6">
+                        <div class="text-center space-y-2">
+                            <span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 font-mono text-xs font-bold uppercase">The Problem</span>
+                            <h2 class="text-3xl sm:text-5xl font-bold text-white">Have You Ever Seen This? 😱</h2>
+                            <p class="text-slate-300 text-base sm:text-lg">Tap the tech fail that ruins your day the most (Classroom Poll!):</p>
+                        </div>
+
+                        <!-- Interactive Classroom Poll Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="poll-container">
+                            <button onclick="voteFail(0)" class="arcade-btn text-left p-5 rounded-2xl bg-slate-800 hover:bg-slate-750 border-2 border-slate-700 hover:border-rose-400 flex items-center justify-between group cursor-pointer">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-4xl">📶</span>
+                                    <div>
+                                        <div class="font-bold text-white text-lg group-hover:text-rose-300">999ms Ping / Lag Spike</div>
+                                        <div class="text-xs text-slate-400">Teleporting straight off the map</div>
+                                    </div>
+                                </div>
+                                <span id="vote-0" class="px-3 py-1 rounded-xl bg-slate-900 font-mono font-bold text-cyan-400 text-lg">0</span>
+                            </button>
+
+                            <button onclick="voteFail(1)" class="arcade-btn text-left p-5 rounded-2xl bg-slate-800 hover:bg-slate-750 border-2 border-slate-700 hover:border-amber-400 flex items-center justify-between group cursor-pointer">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-4xl">⏳</span>
+                                    <div>
+                                        <div class="font-bold text-white text-lg group-hover:text-amber-300">Infinite Loading Spinner</div>
+                                        <div class="text-xs text-slate-400">Stuck at 99% forever</div>
+                                    </div>
+                                </div>
+                                <span id="vote-1" class="px-3 py-1 rounded-xl bg-slate-900 font-mono font-bold text-cyan-400 text-lg">0</span>
+                            </button>
+
+                            <button onclick="voteFail(2)" class="arcade-btn text-left p-5 rounded-2xl bg-slate-800 hover:bg-slate-750 border-2 border-slate-700 hover:border-purple-400 flex items-center justify-between group cursor-pointer">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-4xl">💥</span>
+                                    <div>
+                                        <div class="font-bold text-white text-lg group-hover:text-purple-300">"Server Maintenance" Crash</div>
+                                        <div class="text-xs text-slate-400">Right on update launch day</div>
+                                    </div>
+                                </div>
+                                <span id="vote-2" class="px-3 py-1 rounded-xl bg-slate-900 font-mono font-bold text-cyan-400 text-lg">0</span>
+                            </button>
+
+                            <button onclick="voteFail(3)" class="arcade-btn text-left p-5 rounded-2xl bg-slate-800 hover:bg-slate-750 border-2 border-slate-700 hover:border-emerald-400 flex items-center justify-between group cursor-pointer">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-4xl">💾</span>
+                                    <div>
+                                        <div class="font-bold text-white text-lg group-hover:text-emerald-300">Unsaved Progress Lost</div>
+                                        <div class="text-xs text-slate-400">App closes & forgets everything</div>
+                                    </div>
+                                </div>
+                                <span id="vote-3" class="px-3 py-1 rounded-xl bg-slate-900 font-mono font-bold text-cyan-400 text-lg">0</span>
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-800/70 border border-cyan-500/30 rounded-2xl p-4 text-center">
+                            <p class="text-sm sm:text-base text-slate-200">
+                                💡 <strong>Fun Fact:</strong> "The Cloud" isn't in the sky—it's millions of real computers in giant warehouses called <strong>Data Centers</strong>!
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                title: "What is Site Reliability Engineering?",
+                subtitle: "Part Software Engineer + Part Detective + Part Digital Firefighter",
+                timeRange: "Min 3:30 – 5:30 (2 min)",
+                prompt: "If Software Developers are the architects who design a rollercoaster, what do you think Site Reliability Engineers do?",
+                notes: [
+                    "<strong>Use the Rollercoaster / Race Car Analogy:</strong> Software developers design and build the fastest race car. SREs are the pit crew, the safety inspectors, and the track engineers making sure the wheels don't fly off at 200 mph.",
+                    "<strong>Three Superpowers of an SRE:</strong><br>1. <em>Builder:</em> We write code and automation so computers fix themselves.<br>2. <em>Detective:</em> We read charts, logs, and clues to spot slowdowns before users even notice.<br>3. <em>First Responder:</em> When an outage hits at 2 PM or 2 AM, we jump in to bring the system back online fast.",
+                    "<strong>Principal Engineer Note:</strong> As a <em>Principal</em> Engineer, I help design the big-picture strategy so hundreds of engineers can build reliable systems together."
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-6">
+                        <div class="text-center space-y-2">
+                            <span class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-xs font-bold uppercase">Meet the Job</span>
+                            <h2 class="text-3xl sm:text-5xl font-bold text-white">What Does an SRE Actually Do?</h2>
+                            <p class="text-slate-300 text-base sm:text-lg">Think of us as <span class="text-amber-400 font-bold">Digital Firefighters</span> & <span class="text-cyan-400 font-bold">Pit-Crew Engineers</span>!</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <!-- Card 1 -->
+                            <div class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-cyan-500/40 rounded-3xl p-6 space-y-3 shadow-lg">
+                                <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-2xl font-bold">🤖</div>
+                                <h3 class="text-xl font-bold text-white">1. Robot Builder</h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    We write code so software <strong>heals itself</strong> automatically instead of humans pressing buttons all day.
+                                </p>
+                                <div class="text-xs font-mono text-cyan-400 pt-1">Skill: Coding & Automation</div>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-purple-500/40 rounded-3xl p-6 space-y-3 shadow-lg">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-300 flex items-center justify-center text-2xl font-bold">🔎</div>
+                                <h3 class="text-xl font-bold text-white">2. Speed Detective</h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    We watch live dashboards—like a hospital heart monitor for apps—to catch tiny glitches <strong>before</strong> you feel lag.
+                                </p>
+                                <div class="text-xs font-mono text-purple-400 pt-1">Skill: Data & Monitoring</div>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 space-y-3 shadow-lg">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-2xl font-bold">🚒</div>
+                                <h3 class="text-xl font-bold text-white">3. Rescue Squad</h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    When a storm, cable cut, or giant traffic wave hits, we reroute traffic and get everything back online fast.
+                                </p>
+                                <div class="text-xs font-mono text-amber-400 pt-1">Skill: Calm Problem-Solving</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div class="text-sm text-slate-300">
+                                <strong class="text-white">App Developers</strong> build awesome new features. <strong class="text-cyan-400">SREs</strong> make sure those features work for <em>millions of people at the exact same second</em>.
+                            </div>
+                            <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold whitespace-nowrap">99.99% Uptime!</span>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                title: "LIVE LAB: The Launch Day Traffic Surge!",
+                subtitle: "Interactive Simulator: Can you save the servers when 10 million players log in?",
+                timeRange: "Min 5:30 – 8:30 (3 min)",
+                prompt: "Let's test our servers! Who wants to mash the 'New Season Launch' button and see what happens when millions of players rush in at once?",
+                notes: [
+                    "<strong>Interactive Activity (3 mins):</strong> Invite a student volunteer (or click on the big screen) to click <strong>'New Season Drop!'</strong> multiple times to spike traffic.",
+                    "<strong>Watch It Crash:</strong> Point out the CPU meter turning red and the servers overheating when traffic exceeds capacity.",
+                    "<strong>Deploy SRE Magic & Preview Game Power-Ups:</strong> Click <strong>'Enable Load Balancer'</strong> and <strong>'Turn On Auto-Scaling'</strong>! Point out the yellow/cyan preview pills at the bottom—in the game at the end of class, these exact tools are called <strong>Move Players</strong> and <strong>Add Extra Servers</strong>!"
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold uppercase">Interactive Lab #1</span>
+                                <h2 class="text-2xl sm:text-4xl font-bold text-white mt-1">Survive the Launch Day Surge! 🚀</h2>
+                            </div>
+                            <div id="sim-status-badge" class="px-4 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-mono font-bold text-sm self-start sm:self-center">
+                                STATUS: HEALTHY
+                            </div>
+                        </div>
+
+                        <!-- Live Telemetry Dashboard -->
+                        <div class="grid grid-cols-3 gap-3 sm:gap-4">
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3 sm:p-4 text-center">
+                                <div class="text-xs font-mono text-slate-400 uppercase">Players Online</div>
+                                <div id="sim-users" class="text-2xl sm:text-3xl font-extrabold font-mono text-cyan-400 mt-1">100K</div>
+                            </div>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3 sm:p-4 text-center">
+                                <div class="text-xs font-mono text-slate-400 uppercase">Active Servers</div>
+                                <div id="sim-servers" class="text-2xl sm:text-3xl font-extrabold font-mono text-purple-400 mt-1">2</div>
+                            </div>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3 sm:p-4 text-center">
+                                <div class="text-xs font-mono text-slate-400 uppercase">Server Stress</div>
+                                <div id="sim-load" class="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-400 mt-1">25%</div>
+                            </div>
+                        </div>
+
+                        <!-- Visual Server Rack & Load Balancer -->
+                        <div id="sim-rack-box" class="bg-slate-950/80 border-2 border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+                            <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                                <span>LOAD BALANCER: <strong id="lb-state" class="text-rose-400">OFF (All traffic hits Server 1!)</strong></span>
+                                <span>AUTO-SCALING: <strong id="as-state" class="text-rose-400">OFF</strong></span>
+                            </div>
+                            <div id="server-nodes-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <!-- Rendered by JS -->
+                            </div>
+                            <p id="sim-message" class="text-xs sm:text-sm text-slate-300 font-medium pt-1">
+                                👉 Step 1: Click <strong>"New Season Drop!"</strong> a few times to flood the game with players!
+                            </p>
+                        </div>
+
+                        <!-- Interactive Arcade Controls -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <button onclick="spikeTraffic()" class="arcade-btn py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                                <span>🔥 New Season Drop! (+Traffic)</span>
+                            </button>
+                            <button onclick="toggleLoadBalancer()" id="btn-lb" class="arcade-btn py-3 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                                <span>⚖️ Enable Load Balancer</span>
+                            </button>
+                            <button onclick="toggleAutoScale()" id="btn-as" class="arcade-btn py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                                <span>🤖 Turn On Auto-Scaling</span>
+                            </button>
+                        </div>
+
+                        <!-- Game Power-Up Preview Banner -->
+                        <div class="bg-indigo-950/80 border border-cyan-500/40 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex flex-wrap items-center gap-2 text-xs">
+                                <span class="px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono font-extrabold uppercase">🎮 Game Power-Up Preview</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-emerald-400/50 text-emerald-300 font-bold">🚀 Auto-Scale = "Add Extra Servers"</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-amber-400/50 text-amber-300 font-bold">🔀 Load Balance = "Move Players"</span>
+                            </div>
+                            <button onclick="resetTrafficSim()" class="text-xs font-mono text-slate-400 hover:text-white underline cursor-pointer">Reset Simulator</button>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 5,
+                title: "Chaos Engineering: Breaking Things on Purpose!",
+                subtitle: "Why SREs act like Crash-Test Dummies for the internet",
+                timeRange: "Min 8:30 – 10:30 (2 min)",
+                prompt: "Why would engineers intentionally unplug servers or slow down their OWN app on a Tuesday afternoon?",
+                notes: [
+                    "<strong>The Crash-Test Dummy Analogy:</strong> Car makers crash test cars with dummies BEFORE families drive them so they know the airbags actually work.",
+                    "<strong>Chaos Engineering:</strong> SREs run controlled experiments where we intentionally break a tiny piece of our system—like turning off one server or simulating slow Wi-Fi—to prove our backup systems kick in automatically.",
+                    "<strong>Origin Story:</strong> Netflix famously created a tool called <strong>'Chaos Monkey'</strong> that randomly turned off servers during the workday so engineers had to build apps that could survive anything!"
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-6">
+                        <div class="text-center space-y-2">
+                            <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-mono text-xs font-bold uppercase">Secret Weapon</span>
+                            <h2 class="text-3xl sm:text-5xl font-bold text-white">Chaos Engineering 🐒💥</h2>
+                            <p class="text-slate-300 text-base sm:text-lg">Yes, we literally get paid to break our own stuff (safely!).</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="bg-slate-800/80 border-2 border-amber-500/40 rounded-3xl p-6 space-y-4">
+                                <div class="text-4xl">🚗💨</div>
+                                <h3 class="text-2xl font-bold text-amber-300">Crash-Test Dummies for Apps</h3>
+                                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                                    You don't wait for a real hurricane to check if your umbrella has holes!
+                                </p>
+                                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                                    SREs run <strong>safe, planned experiments</strong>—like unplugging one computer in a data center—to make sure your video keeps playing without even a hiccup.
+                                </p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 flex items-start gap-3">
+                                    <span class="text-2xl">1️⃣</span>
+                                    <div>
+                                        <div class="font-bold text-white">Build Backup Copies (Redundancy)</div>
+                                        <div class="text-xs sm:text-sm text-slate-400">Never rely on just ONE computer or ONE power cord.</div>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 flex items-start gap-3">
+                                    <span class="text-2xl">2️⃣</span>
+                                    <div>
+                                        <div class="font-bold text-white">Unleash the "Chaos Monkey"</div>
+                                        <div class="text-xs sm:text-sm text-slate-400">Randomly turn off a server while engineers are awake and watching.</div>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 flex items-start gap-3">
+                                    <span class="text-2xl">3️⃣</span>
+                                    <div>
+                                        <div class="font-bold text-white">Verify Instant Failover</div>
+                                        <div class="text-xs sm:text-sm text-slate-400">If users don't notice anything broke, the test is a huge win!</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 6,
+                title: "MINI-GAME: Unleash the Chaos Monkey!",
+                subtitle: "Click to sabotage the data center and watch Redundancy & Failover save the stream!",
+                timeRange: "Min 10:30 – 13:30 (3 min)",
+                prompt: "Who wants to be the Chaos Monkey? Pick a disaster—cut an undersea cable, unplug a server, or zap the power—and let's see if our app survives!",
+                notes: [
+                    "<strong>Interactive Mini-Game (3 mins):</strong> Let students call out which disaster button to press first!",
+                    "<strong>Teach 'Redundancy' & 'Failover':</strong><br>• <em>Redundancy</em> means having spare parts ready in multiple cities (e.g., Virginia, Texas, Oregon).<br>• <em>Failover</em> means switching from the broken part to the healthy backup in milliseconds.",
+                    "<strong>Preview Game Power-Ups:</strong> Highlight the Game Power-Up Preview bar at the bottom—when a shark bites an ocean cable or a buggy patch hits in <em>Don't Let the Lobby Crash!</em>, students will use <strong>Move Players</strong>, <strong>Undo Bad Update</strong>, and <strong>Crash Shield</strong>!"
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-xs font-bold uppercase">Interactive Lab #2</span>
+                                <h2 class="text-2xl sm:text-4xl font-bold text-white mt-1">Chaos Monkey Challenge! 🐒⚡</h2>
+                            </div>
+                            <div id="chaos-stream-status" class="px-4 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-mono font-bold text-sm self-start sm:self-center">
+                                STREAM: 100% ONLINE 🎬
+                            </div>
+                        </div>
+
+                        <!-- 3 Data Center Regions -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="chaos-regions">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Chaos Event Log -->
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 font-mono text-xs sm:text-sm space-y-1.5">
+                            <div class="text-slate-400 uppercase text-[11px]">Live SRE System Log:</div>
+                            <div id="chaos-log" class="text-cyan-300 font-semibold">✅ All 3 global data centers online. Ready for Chaos testing!</div>
+                        </div>
+
+                        <!-- Disaster Buttons -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <button onclick="triggerChaos('cable')" class="arcade-btn py-3 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-extrabold text-xs sm:text-sm cursor-pointer">
+                                🦈 Shark Bites Cable!
+                            </button>
+                            <button onclick="triggerChaos('power')" class="arcade-btn py-3 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs sm:text-sm cursor-pointer">
+                                ⚡ Lightning Strike!
+                            </button>
+                            <button onclick="triggerChaos('coffee')" class="arcade-btn py-3 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs sm:text-sm cursor-pointer">
+                                ☕ Spill Coffee on Server!
+                            </button>
+                            <button onclick="healAllRegions()" class="arcade-btn py-3 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-extrabold text-xs sm:text-sm cursor-pointer">
+                                🛠️ Auto-Heal All
+                            </button>
+                        </div>
+
+                        <!-- Game Power-Up Preview Banner -->
+                        <div class="bg-indigo-950/80 border border-purple-500/40 rounded-2xl px-4 py-2.5 flex flex-wrap items-center gap-2 text-xs">
+                            <span class="px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono font-extrabold uppercase">🎮 Game Power-Up Preview</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-amber-400/50 text-amber-300 font-bold">🔀 Failover = "Move Players"</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-purple-400/50 text-purple-300 font-bold">⏪ Rollback = "Undo Bad Update"</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-rose-400/50 text-rose-300 font-bold">🛡️ Chaos Protection = "Crash Shield"</span>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 7,
+                title: "3:00 AM Pager Alert! What Do You Do?",
+                subtitle: "Interactive Incident Response Scenario: Think like a Principal SRE",
+                timeRange: "Min 13:30 – 16:00 (2.5 min)",
+                prompt: "BEEP! BEEP! BEEP! It's 3:00 AM and your phone wakes you up because a big app just went down. What's your VERY FIRST move?",
+                notes: [
+                    "<strong>Walk Through the Scenario:</strong> Read the 3 options aloud and have the class vote (A, B, or C) before clicking!",
+                    "<strong>Key SRE Rule — 'Stop the Bleeding First':</strong> In an emergency, you don't spend 2 hours arguing about why the pipe burst while the house floods—you turn off the water valve (roll back the bad update) first, THEN investigate!",
+                    "<strong>Click each option</strong> to show the class what happens in real life."
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-xs font-bold uppercase">Incident Response</span>
+                                <h2 class="text-2xl sm:text-4xl font-bold text-white mt-1">🚨 BEEP! 3:00 AM Alert!</h2>
+                            </div>
+                            <span class="text-3xl sm:text-4xl animate-bounce">📟</span>
+                        </div>
+
+                        <div class="bg-slate-800/90 border-2 border-rose-500/40 rounded-2xl p-4 sm:p-5">
+                            <p class="text-sm sm:text-base text-slate-200 leading-relaxed">
+                                <strong>The Situation:</strong> A new app update went out 10 minutes ago. Suddenly, logins are failing for millions of users! What should the SRE team do <strong>FIRST</strong>?
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-3">
+                            <button onclick="chooseIncident('A')" class="arcade-btn text-left p-4 rounded-2xl bg-slate-800 hover:bg-slate-750 border-2 border-slate-700 hover:border-cyan-400 flex items-center gap-4 cursor-pointer">
+                                <span class="w-9 h-9 rounded-xl bg-slate-900 font-mono font-bold text-cyan-400 flex items-center justify-center shrink-0">A</span>
+                                <span class="text-sm sm:text-base font-semibold text-white">Find out which programmer wrote the bug and yell at them!</span>
+                            </button>
+
+                            <button onclick="chooseIncident('B')" class="arcade-btn text-left p-4 rounded-2xl bg-slate-800 hover:bg-slate-750 border-2 border-slate-700 hover:border-cyan-400 flex items-center gap-4 cursor-pointer">
+                                <span class="w-9 h-9 rounded-xl bg-slate-900 font-mono font-bold text-cyan-400 flex items-center justify-center shrink-0">B</span>
+                                <span class="text-sm sm:text-base font-semibold text-white">Hit "Undo" (Rollback) to restore the working version immediately!</span>
+                            </button>
+
+                            <button onclick="chooseIncident('C')" class="arcade-btn text-left p-4 rounded-2xl bg-slate-800 hover:bg-slate-750 border-2 border-slate-700 hover:border-cyan-400 flex items-center gap-4 cursor-pointer">
+                                <span class="w-9 h-9 rounded-xl bg-slate-900 font-mono font-bold text-cyan-400 flex items-center justify-center shrink-0">C</span>
+                                <span class="text-sm sm:text-base font-semibold text-white">Spend 3 hours reading every line of code before fixing anything.</span>
+                            </button>
+                        </div>
+
+                        <div id="incident-feedback" class="hidden rounded-2xl p-4 border-2 text-sm sm:text-base font-medium"></div>
+                    </div>
+                `
+            },
+            {
+                id: 8,
+                title: "Blameless Postmortems: Fix the System, Not the Human!",
+                subtitle: "The #1 superpower of great engineering teams",
+                timeRange: "Min 16:00 – 18:00 (2 min)",
+                prompt: "Why do you think SRE teams have a strict rule: 'Never blame a person when a mistake happens'?",
+                notes: [
+                    "<strong>Explain 'Blameless Culture':</strong> Humans make mistakes—we get tired, we hit the wrong key, we misread a label. If people are scared of getting in trouble, they hide mistakes instead of fixing them!",
+                    "<strong>Airplane Safety Comparison:</strong> Just like aviation safety investigators, SREs ask: <em>'Why did our system make it so easy to make that mistake?'</em>",
+                    "<strong>Real Example:</strong> Instead of saying 'Alex deleted the database,' we say 'Our software shouldn't allow one button click to delete a database without a safety lock—let's build a safety lock!'"
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-6">
+                        <div class="text-center space-y-2">
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold uppercase">Team Culture</span>
+                            <h2 class="text-3xl sm:text-5xl font-bold text-white">Blameless Postmortems 🤝</h2>
+                            <p class="text-lg sm:text-xl text-cyan-300 font-semibold">"Fix the System, Not the Human!"</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Old Way -->
+                            <div class="bg-rose-950/30 border-2 border-rose-500/40 rounded-3xl p-6 space-y-3">
+                                <div class="inline-block px-3 py-1 rounded-lg bg-rose-500/20 text-rose-300 font-mono text-xs font-bold">❌ THE BLAME TRAP</div>
+                                <h3 class="text-xl font-bold text-white">"Who broke it?!"</h3>
+                                <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside">
+                                    <li>People get scared and hide mistakes</li>
+                                    <li>The exact same bug happens again next month</li>
+                                    <li>Nobody learns anything new</li>
+                                </ul>
+                            </div>
+
+                            <!-- SRE Way -->
+                            <div class="bg-emerald-950/30 border-2 border-emerald-500/40 rounded-3xl p-6 space-y-3">
+                                <div class="inline-block px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold">✅ THE SRE WAY</div>
+                                <h3 class="text-xl font-bold text-white">"How do we make it impossible next time?"</h3>
+                                <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside">
+                                    <li>Write a timeline of what happened (no finger-pointing!)</li>
+                                    <li>Build automated guardrails & safety checks</li>
+                                    <li>Every mistake makes the app 10x stronger</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 text-center text-sm sm:text-base text-slate-200">
+                            ✈️ <strong>Just like airline pilots:</strong> When something goes wrong, we upgrade the cockpit controls so every flight is safer!
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 9,
+                title: "A Day in the Life of an SRE",
+                subtitle: "What my schedule actually looks like (and how on-call works)",
+                timeRange: "Min 18:00 – 20:00 (2 min)",
+                prompt: "Do SREs sit in a dark basement staring at green Matrix code all day? (Spoiler: Nope!)",
+                notes: [
+                    "<strong>Bust Stereotypes:</strong> Show that SRE is super collaborative—we brainstorm with teams, write code, test systems, and solve puzzles.",
+                    "<strong>Customize Your Real Schedule:</strong> Use the placeholder below to share what your real day/week looks like, including how on-call rotations work so students know you still get sleep and weekends!",
+                    "<span class='placeholder-tag'>[PLACEHOLDER: Anand's real daily/weekly work schedule — e.g., typical hours, hybrid/remote setup, coding vs. design meetings, and how on-call rotation works]</span>",
+                    "<strong>Transition to Hands-On Game (Min 20:00):</strong> Tell the class: 'Now that you know how SREs think, it's YOUR turn to take the on-call shift!'"
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-6">
+                        <div class="text-center space-y-2">
+                            <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-mono text-xs font-bold uppercase">Behind the Scenes</span>
+                            <h2 class="text-3xl sm:text-5xl font-bold text-white">A Day in My Life as a Principal SRE</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 space-y-2">
+                                <div class="text-xs font-mono text-cyan-400 font-bold uppercase">☀️ Morning • Architecture & Code</div>
+                                <h3 class="text-lg font-bold text-white">Building Smart Automation</h3>
+                                <p class="text-sm text-slate-300">Writing tools that watch app health, reviewing system designs, and helping teams spot weak spots early.</p>
+                            </div>
+
+                            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 space-y-2">
+                                <div class="text-xs font-mono text-purple-400 font-bold uppercase">🌤️ Afternoon • Teamwork & Game Days</div>
+                                <h3 class="text-lg font-bold text-white">Running Drills & Solving Puzzles</h3>
+                                <p class="text-sm text-slate-300">Practicing disaster drills ("Game Days"), mentoring engineers, and making apps faster.</p>
+                            </div>
+                        </div>
+
+                        <!-- Clear Speaker Placeholder Card for Schedule -->
+                        <div class="bg-amber-500/10 border-2 border-dashed border-amber-400/70 rounded-2xl p-5 space-y-2">
+                            <div class="flex items-center gap-2 text-amber-300 font-mono text-xs font-bold uppercase">
+                                <span>🗓️ My Real Work Schedule & On-Call Routine</span>
+                            </div>
+                            <p class="text-sm sm:text-base text-amber-100 font-mono">
+                                [PLACEHOLDER: Insert Anand's actual daily schedule, work hours, remote/office rhythm, and how on-call rotation is shared across the team]
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 10,
+                title: "Your Turn: Don't Let the Lobby Crash!",
+                subtitle: "60-Second On-Call Challenge: Can you hit 99.9% 'Three Nines' Uptime?",
+                timeRange: "Min 20:00 – 23:00 (3 min Game)",
+                prompt: "Open the game on your Chromebook/tablet (or let's play together on the big screen)! Who can earn the Legendary Clutch Engineer badge?",
+                notes: [
+                    "<strong>Hands-On Game Block (3 mins):</strong> Click <strong>'Launch Game (New Tab)'</strong> to open <code>server_squad_game.html</code> on the projector, or share the classroom URL shown in the box so students can play on their own devices!",
+                    "<strong>Quick How-To-Play Tip:</strong> Tell students they can do the 2-step warm-up with <em>Byte the SRE Bot</em> or click <strong>Skip Practice</strong> to jump right into the 60-second match.",
+                    "<strong>Challenge Goal:</strong> Challenge them to keep Happy Players ≥ <strong>99.9% ('Three Nines')</strong> and earn the <strong>🏆 Legendary Clutch Engineer!</strong> badge."
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-5">
+                        <div class="text-center space-y-1.5">
+                            <span class="px-3.5 py-1 rounded-full bg-amber-400/20 border border-amber-400/50 text-amber-300 font-mono text-xs font-extrabold uppercase tracking-wider">
+                                🎮 Hands-On Challenge • 60-Second Shift
+                            </span>
+                            <h2 class="text-3xl sm:text-5xl font-extrabold text-white">
+                                Your Turn: Don't Let the Lobby Crash!
+                            </h2>
+                            <p class="text-sm sm:text-lg text-cyan-200 font-semibold">
+                                Goal: Keep Uptime ≥ <span class="text-emerald-400 font-mono font-extrabold">99.9% ("Three Nines")</span> & earn <span class="text-amber-300 font-bold">Legendary Clutch Engineer!</span>
+                            </p>
+                        </div>
+
+                        <!-- Launch & Classroom URL Share Panel -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-stretch">
+                            <!-- Left: Big Launch Button -->
+                            <div class="md:col-span-2 bg-gradient-to-br from-indigo-900/90 to-slate-900 border-2 border-cyan-400/60 rounded-3xl p-5 flex flex-col justify-between gap-4 shadow-xl">
+                                <div class="space-y-1.5">
+                                    <div class="text-3xl">🤖🛡️🚀</div>
+                                    <h3 class="text-xl font-bold text-white">Play on Big Screen or Chromebook</h3>
+                                    <p class="text-xs text-slate-300 leading-relaxed">
+                                        Tap hot servers to <strong>Cool & Reboot</strong>, use <strong>Add Extra Servers</strong> for crowd surges, and <strong>Undo Bad Update</strong>!
+                                    </p>
+                                </div>
+                                <a id="launch-game-link" href="server_squad_game.html" target="_blank" rel="noopener noreferrer"
+                                    class="arcade-btn w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-300 to-emerald-400 hover:from-amber-200 hover:to-emerald-300 text-slate-950 font-extrabold text-sm sm:text-base text-center flex items-center justify-center gap-2 cursor-pointer">
+                                    <span>▶️ Launch Game (New Tab)</span>
+                                </a>
+                            </div>
+
+                            <!-- Right: Editable Classroom URL / Fallback Box -->
+                            <div class="md:col-span-3 bg-slate-800/85 border-2 border-slate-700 rounded-3xl p-5 flex flex-col justify-between gap-3">
+                                <div class="space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-mono uppercase tracking-wider text-cyan-300 font-bold">🔗 Classroom Game Link (Students Type / Scan)</span>
+                                        <span class="text-[11px] font-mono text-slate-400">Editable</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400">Paste your hosted game link or classroom short-URL below so students can open it on their own devices:</p>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <input id="classroom-url-input" type="text" value="server_squad_game.html" oninput="syncGameLaunchUrl(this.value)"
+                                        aria-label="Classroom Game URL"
+                                        class="flex-1 bg-slate-950 border-2 border-cyan-500/40 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 font-mono text-sm sm:text-base text-amber-300 font-bold outline-none" />
+                                    <button onclick="copyClassroomUrl()" id="copy-url-btn"
+                                        class="arcade-btn px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs sm:text-sm whitespace-nowrap cursor-pointer">
+                                        📋 Copy Link
+                                    </button>
+                                </div>
+
+                                <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs text-slate-300">
+                                    <span>💡 <strong>Tip:</strong> Start with the 2-step warm-up or hit <em>Skip Practice</em>!</span>
+                                    <span class="font-mono text-emerald-400 font-bold">60s Round</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Game Rank Cards -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-gradient-to-b from-amber-500/20 to-slate-900 border-2 border-amber-400/70 rounded-2xl p-3 text-center">
+                                <div class="text-2xl">🏆</div>
+                                <div class="font-bold text-amber-300 text-xs sm:text-sm mt-1">Legendary Clutch Engineer!</div>
+                                <div class="font-mono text-[11px] text-slate-300 mt-0.5">≥ 99.0% Uptime</div>
+                            </div>
+                            <div class="bg-gradient-to-b from-cyan-500/15 to-slate-900 border border-cyan-400/50 rounded-2xl p-3 text-center">
+                                <div class="text-2xl">⚡</div>
+                                <div class="font-bold text-cyan-300 text-xs sm:text-sm mt-1">Anti-Lag Hero!</div>
+                                <div class="font-mono text-[11px] text-slate-400 mt-0.5">96.5% – 98.9%</div>
+                            </div>
+                            <div class="bg-gradient-to-b from-emerald-500/15 to-slate-900 border border-emerald-400/50 rounded-2xl p-3 text-center">
+                                <div class="text-2xl">🛡️</div>
+                                <div class="font-bold text-emerald-300 text-xs sm:text-sm mt-1">Lobby Legend!</div>
+                                <div class="font-mono text-[11px] text-slate-400 mt-0.5">94.0% – 96.4%</div>
+                            </div>
+                            <div class="bg-gradient-to-b from-purple-500/15 to-slate-900 border border-purple-400/50 rounded-2xl p-3 text-center">
+                                <div class="text-2xl">🚀</div>
+                                <div class="font-bold text-purple-300 text-xs sm:text-sm mt-1">Rookie Guardian!</div>
+                                <div class="font-mono text-[11px] text-slate-400 mt-0.5">First Shift Complete</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 11,
+                title: "Lobby Debrief, Career Path & Ask Me Anything!",
+                subtitle: "How to become an SRE + open Q&A with Anand Hemmige",
+                timeRange: "Min 23:00 – 25:00 (2 min Q&A)",
+                prompt: "Lobby Debrief! Raise your hand if you hit 99.9% 'Three Nines' Uptime or earned Legendary Clutch Engineer—and hit me with your best questions!",
+                notes: [
+                    "<strong>Lobby Debrief (30 sec):</strong> Ask for a quick show of hands: <em>'Who hit 99.9% Three Nines Uptime? Who got the most Clutch Saves? What was the hardest disaster to stop?'</em>",
+                    "<strong>Share Your Real Journey (Use Placeholders Below):</strong><br><span class='placeholder-tag'>[PLACEHOLDER: Anand's Education & Career Path — e.g., college degree(s), early roles, what sparked your interest in systems/reliability]</span>",
+                    "<span class='placeholder-tag'>[PLACEHOLDER: Typical SRE Career Progression & Salary Range — e.g., Junior SRE → Senior → Staff → Principal, plus accurate industry salary range if you choose to share]</span>",
+                    "<strong>Open Q&A & Wrap-Up:</strong> Take questions from around the room, encourage their middle-school curiosity (coding, Minecraft redstone, asking 'why did that break?'), and thank the class!"
+                ],
+                render: () => `
+                    <div class="slide-enter max-w-4xl mx-auto w-full space-y-5">
+                        <div class="text-center space-y-1">
+                            <span class="px-3.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono text-xs font-bold uppercase">
+                                🏆 Lobby Debrief & Q&A
+                            </span>
+                            <h2 class="text-3xl sm:text-5xl font-extrabold text-white">
+                                Your Future Path & Ask Me Anything! 🙋‍♂️🙋‍♀️
+                            </h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Left Column: Middle School Skills + Career Placeholders -->
+                            <div class="space-y-3">
+                                <div class="bg-slate-800/85 border border-slate-700 rounded-2xl p-4 space-y-2">
+                                    <h3 class="text-base font-bold text-cyan-300">🎒 Start Practicing Now (Grades 6–8)</h3>
+                                    <ul class="text-xs sm:text-sm text-slate-200 space-y-1.5">
+                                        <li>🧩 <strong>Stay Curious:</strong> Ask <em>"How does this work?"</em> and <em>"What if I press this?"</em></li>
+                                        <li>💻 <strong>Try Coding & Logic:</strong> Scratch, Python, Roblox Lua, or Minecraft Redstone</li>
+                                        <li>🤝 <strong>Blameless Teamwork:</strong> Helping teammates fix bugs beats blaming!</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-amber-500/10 border-2 border-dashed border-amber-400/70 rounded-2xl p-3.5 space-y-1">
+                                    <div class="text-amber-300 font-mono text-xs font-bold uppercase">🎓 My Education & Career Path</div>
+                                    <p class="text-xs text-amber-100 font-mono">
+                                        [PLACEHOLDER: Anand's college/education background and career steps to Principal Engineer]
+                                    </p>
+                                </div>
+
+                                <div class="bg-amber-500/10 border-2 border-dashed border-amber-400/70 rounded-2xl p-3.5 space-y-1">
+                                    <div class="text-amber-300 font-mono text-xs font-bold uppercase">💼 Career Levels & Pay Range</div>
+                                    <p class="text-xs text-amber-100 font-mono">
+                                        [PLACEHOLDER: Typical SRE salary range / progression from Entry-Level to Principal Engineer]
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Q&A Starter Prompts -->
+                            <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                                <div class="space-y-2.5">
+                                    <div class="text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold">💬 Pick a Question (Or Ask Your Own!)</div>
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-start gap-2.5">
+                                        <span class="text-xl">🔥</span>
+                                        <div class="text-xs sm:text-sm text-slate-200 font-medium">"What is the biggest or funniest tech crash you've ever seen?"</div>
+                                    </div>
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-start gap-2.5">
+                                        <span class="text-xl">🤖</span>
+                                        <div class="text-xs sm:text-sm text-slate-200 font-medium">"Will AI replace Site Reliability Engineers, or help them?"</div>
+                                    </div>
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-start gap-2.5">
+                                        <span class="text-xl">🎮</span>
+                                        <div class="text-xs sm:text-sm text-slate-200 font-medium">"Why do multiplayer games sometimes lag even on fast Wi-Fi?"</div>
+                                    </div>
+                                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-start gap-2.5">
+                                        <span class="text-xl">🚀</span>
+                                        <div class="text-xs sm:text-sm text-slate-200 font-medium">"What's the coolest part of being a Principal Engineer?"</div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-1 text-center text-xs text-cyan-400 font-mono font-bold">
+                                    Thank you! • Anand Hemmige, Principal Engineer (SRE)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // ==========================================
+        // APP STATE
+        // ==========================================
+        let currentSlideIndex = 0;
+        let notesVisible = false;
+        let classroomGameUrl = 'server_squad_game.html';
+
+        // 25-minute countdown timer state (1500 seconds)
+        let remainingSeconds = 25 * 60;
+        let timerInterval = null;
+        let timerRunning = false;
+
+        // Slide 2 Poll state
+        const pollVotes = [0, 0, 0, 0];
+
+        // Slide 4 Traffic Simulator state
+        let simTraffic = 100; // in thousands
+        let simServers = 2;
+        let loadBalancerOn = false;
+        let autoScaleOn = false;
+
+        // Slide 6 Chaos Monkey state
+        let regions = [
+            { id: 'us-east', name: 'US-East (Virginia)', healthy: true, issue: '' },
+            { id: 'us-central', name: 'US-Central (Texas)', healthy: true, issue: '' },
+            { id: 'us-west', name: 'US-West (Oregon)', healthy: true, issue: '' }
+        ];
+
+        // ==========================================
+        // NAVIGATION & RENDERING
+        // ==========================================
+        function renderSlide() {
+            const slide = slides[currentSlideIndex];
+            const contentEl = document.getElementById('slide-content');
+            contentEl.innerHTML = slide.render();
+
+            // Update header & progress
+            document.getElementById('slide-counter-top').textContent = `${currentSlideIndex + 1}/${slides.length}`;
+            document.getElementById('pace-indicator').textContent = slide.timeRange.split(' ')[1] || slide.timeRange;
+            const progressPct = ((currentSlideIndex + 1) / slides.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+
+            // Update prev/next buttons
+            document.getElementById('prev-btn').disabled = currentSlideIndex === 0;
+            document.getElementById('next-btn').disabled = currentSlideIndex === slides.length - 1;
+
+            // Update dots
+            const dotsEl = document.getElementById('slide-dots');
+            dotsEl.innerHTML = slides.map((s, idx) => `
+                <button onclick="goToSlide(${idx})" title="Slide ${idx + 1}: ${s.title}"
+                    class="h-2.5 rounded-full transition-all cursor-pointer ${idx === currentSlideIndex ? 'w-7 bg-cyan-400' : 'w-2.5 bg-slate-700 hover:bg-slate-500'}">
+                </button>
+            `).join('');
+
+            // Update Speaker Notes Drawer
+            document.getElementById('notes-timing').textContent = slide.timeRange;
+            document.getElementById('notes-prompt').textContent = slide.prompt;
+            document.getElementById('notes-body').innerHTML = slide.notes.map(note => `
+                <div class="p-3 rounded-xl bg-slate-800/70 border border-slate-700/80">${note}</div>
+            `).join('');
+
+            // Initialize slide-specific interactive UIs
+            if (slide.id === 2) {
+                pollVotes.forEach((v, i) => {
+                    const el = document.getElementById(`vote-${i}`);
+                    if (el) el.textContent = v;
+                });
+            }
+            if (slide.id === 4) {
+                updateTrafficUI();
+            }
+            if (slide.id === 6) {
+                renderChaosRegions();
+            }
+            if (slide.id === 10) {
+                const inputEl = document.getElementById('classroom-url-input');
+                const linkEl = document.getElementById('launch-game-link');
+                if (inputEl) inputEl.value = classroomGameUrl;
+                if (linkEl) linkEl.href = classroomGameUrl || 'server_squad_game.html';
+            }
+        }
+
+        function syncGameLaunchUrl(val) {
+            classroomGameUrl = val.trim() || 'server_squad_game.html';
+            const linkEl = document.getElementById('launch-game-link');
+            if (linkEl) linkEl.href = classroomGameUrl;
+        }
+
+        function copyClassroomUrl() {
+            const inputEl = document.getElementById('classroom-url-input');
+            const btnEl = document.getElementById('copy-url-btn');
+            if (!inputEl) return;
+            inputEl.select();
+            inputEl.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                if (btnEl) {
+                    const orig = btnEl.textContent;
+                    btnEl.textContent = '✅ Copied!';
+                    setTimeout(() => { btnEl.textContent = orig; }, 1600);
+                }
+            } catch (e) {
+                // Fallback handled gracefully without alert()
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlideIndex = index;
+            renderSlide();
+            const modal = document.getElementById('overview-modal');
+            if (!modal.classList.contains('hidden')) {
+                toggleOverview();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key.toLowerCase() === 'n') {
+                toggleNotes();
+            }
+        });
+
+        // ==========================================
+        // SPEAKER NOTES & OVERVIEW MODAL
+        // ==========================================
+        function toggleNotes() {
+            notesVisible = !notesVisible;
+            const drawer = document.getElementById('notes-drawer');
+            const btn = document.getElementById('notes-toggle-btn');
+            if (notesVisible) {
+                drawer.classList.remove('hidden');
+                drawer.classList.add('flex');
+                btn.classList.add('ring-2', 'ring-amber-400');
+            } else {
+                drawer.classList.add('hidden');
+                drawer.classList.remove('flex');
+                btn.classList.remove('ring-2', 'ring-amber-400');
+            }
+        }
+
+        function toggleOverview() {
+            const modal = document.getElementById('overview-modal');
+            const grid = document.getElementById('overview-grid');
+            if (modal.classList.contains('hidden')) {
+                grid.innerHTML = slides.map((s, idx) => `
+                    <button onclick="goToSlide(${idx})" class="text-left p-4 rounded-2xl border-2 transition cursor-pointer ${idx === currentSlideIndex ? 'bg-cyan-950/50 border-cyan-400' : 'bg-slate-800/80 border-slate-700 hover:border-slate-500'}">
+                        <div class="flex items-center justify-between text-xs font-mono text-cyan-400 mb-1">
+                            <span>SLIDE ${idx + 1}</span>
+                            <span>${s.timeRange.split('(')[0]}</span>
+                        </div>
+                        <div class="font-bold text-white text-sm line-clamp-1">${s.title}</div>
+                        <div class="text-xs text-slate-400 mt-1 line-clamp-2">${s.subtitle}</div>
+                    </button>
+                `).join('');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // ==========================================
+        // 25-MINUTE TIMER LOGIC
+        // ==========================================
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timer-toggle-btn');
+            const dot = document.getElementById('timer-dot');
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                btn.textContent = 'Resume';
+                btn.className = 'ml-1 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition cursor-pointer';
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+            } else {
+                timerRunning = true;
+                btn.textContent = 'Pause';
+                btn.className = 'ml-1 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition cursor-pointer';
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping';
+                timerInterval = setInterval(() => {
+                    if (remainingSeconds > 0) {
+                        remainingSeconds--;
+                        document.getElementById('timer-display').textContent = formatTime(remainingSeconds);
+                        if (remainingSeconds <= 180) {
+                            document.getElementById('timer-display').classList.add('text-amber-400');
+                        }
+                    } else {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        document.getElementById('timer-display').textContent = '00:00';
+                        btn.textContent = 'Done!';
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            remainingSeconds = 25 * 60;
+            const display = document.getElementById('timer-display');
+            display.textContent = '25:00';
+            display.classList.remove('text-amber-400');
+            const btn = document.getElementById('timer-toggle-btn');
+            btn.textContent = 'Start';
+            btn.className = 'ml-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition cursor-pointer';
+            document.getElementById('timer-dot').className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+        }
+
+        // ==========================================
+        // SLIDE 2: CLASSROOM POLL
+        // ==========================================
+        function voteFail(index) {
+            pollVotes[index]++;
+            const el = document.getElementById(`vote-${index}`);
+            if (el) {
+                el.textContent = pollVotes[index];
+                el.classList.add('scale-125', 'text-amber-300');
+                setTimeout(() => el.classList.remove('scale-125', 'text-amber-300'), 200);
+            }
+        }
+
+        // ==========================================
+        // SLIDE 4: TRAFFIC SPIKE SIMULATOR
+        // ==========================================
+        function spikeTraffic() {
+            simTraffic += 450;
+            if (autoScaleOn && simServers < 8) {
+                simServers = Math.min(8, Math.ceil(simTraffic / 300));
+            }
+            updateTrafficUI();
+        }
+
+        function toggleLoadBalancer() {
+            loadBalancerOn = !loadBalancerOn;
+            updateTrafficUI();
+        }
+
+        function toggleAutoScale() {
+            autoScaleOn = !autoScaleOn;
+            if (autoScaleOn) {
+                simServers = Math.min(8, Math.max(4, Math.ceil(simTraffic / 300)));
+            }
+            updateTrafficUI();
+        }
+
+        function resetTrafficSim() {
+            simTraffic = 100;
+            simServers = 2;
+            loadBalancerOn = false;
+            autoScaleOn = false;
+            updateTrafficUI();
+        }
+
+        function updateTrafficUI() {
+            const usersEl = document.getElementById('sim-users');
+            if (!usersEl) return;
+
+            usersEl.textContent = simTraffic >= 1000 ? `${(simTraffic / 1000).toFixed(1)}M` : `${simTraffic}K`;
+            document.getElementById('sim-servers').textContent = simServers;
+
+            // Calculate effective load
+            let effectiveCapacity = loadBalancerOn ? simServers * 320 : 320; // Without LB, Server 1 takes all hits!
+            let loadPct = Math.min(100, Math.round((simTraffic / effectiveCapacity) * 100));
+
+            const loadEl = document.getElementById('sim-load');
+            loadEl.textContent = `${loadPct}%`;
+
+            const statusBadge = document.getElementById('sim-status-badge');
+            const rackBox = document.getElementById('sim-rack-box');
+            const msgEl = document.getElementById('sim-message');
+
+            // Update LB & Auto-scale labels
+            const lbState = document.getElementById('lb-state');
+            lbState.textContent = loadBalancerOn ? 'ON (Sharing traffic evenly!)' : 'OFF (All traffic hits Server 1!)';
+            lbState.className = loadBalancerOn ? 'text-emerald-400' : 'text-rose-400';
+
+            const asState = document.getElementById('as-state');
+            asState.textContent = autoScaleOn ? 'ON (Spawning backup servers!)' : 'OFF';
+            asState.className = autoScaleOn ? 'text-emerald-400' : 'text-rose-400';
+
+            document.getElementById('btn-lb').textContent = loadBalancerOn ? '✅ Load Balancer Active' : '⚖️ Enable Load Balancer';
+            document.getElementById('btn-as').textContent = autoScaleOn ? '✅ Auto-Scaling Active' : '🤖 Turn On Auto-Scaling';
+
+            if (loadPct >= 95) {
+                loadEl.className = 'text-2xl sm:text-3xl font-extrabold font-mono text-rose-500 mt-1';
+                statusBadge.textContent = 'STATUS: SERVER CRASH! 🔥';
+                statusBadge.className = 'px-4 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500 text-rose-300 font-mono font-bold text-sm animate-pulse';
+                rackBox.classList.add('animate-shake', 'border-rose-500');
+                msgEl.innerHTML = '🚨 <strong>CRASH!</strong> Too many players hit one server! Click <strong>Enable Load Balancer</strong> and <strong>Auto-Scaling</strong> to rescue the game!';
+            } else if (loadPct >= 70) {
+                loadEl.className = 'text-2xl sm:text-3xl font-extrabold font-mono text-amber-400 mt-1';
+                statusBadge.textContent = 'STATUS: HEAVY LAG ⚠️';
+                statusBadge.className = 'px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500 text-amber-300 font-mono font-bold text-sm';
+                rackBox.classList.remove('animate-shake', 'border-rose-500');
+                msgEl.innerHTML = '⚠️ <strong>Getting crowded!</strong> Players are starting to feel lag. Add more SRE defenses!';
+            } else {
+                loadEl.className = 'text-2xl sm:text-3xl font-extrabold font-mono text-emerald-400 mt-1';
+                statusBadge.textContent = 'STATUS: SMOOTH & FAST ✨';
+                statusBadge.className = 'px-4 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-mono font-bold text-sm';
+                rackBox.classList.remove('animate-shake', 'border-rose-500');
+                if (simTraffic > 500 && loadBalancerOn && autoScaleOn) {
+                    msgEl.innerHTML = '🎉 <strong>AWESOME SAVE!</strong> Millions of players are online with ZERO lag thanks to Load Balancing + Auto-Scaling!';
+                }
+            }
+
+            // Render individual server nodes
+            const grid = document.getElementById('server-nodes-grid');
+            let nodesHtml = '';
+            for (let i = 0; i < simServers; i++) {
+                let nodeLoad = loadBalancerOn ? loadPct : (i === 0 ? loadPct : 5);
+                let colorClass = nodeLoad >= 95 ? 'border-rose-500 bg-rose-950/50 text-rose-300' :
+                                 nodeLoad >= 70 ? 'border-amber-400 bg-amber-950/40 text-amber-300' :
+                                                  'border-emerald-500/60 bg-slate-900 text-emerald-300';
+                nodesHtml += `
+                    <div class="p-3 rounded-xl border ${colorClass} flex items-center justify-between">
+                        <div>
+                            <div class="font-mono text-xs font-bold">Server #${i + 1}</div>
+                            <div class="text-[11px] opacity-80">${nodeLoad >= 95 ? 'OVERHEATED' : 'ONLINE'}</div>
+                        </div>
+                        <span class="font-mono font-bold text-sm">${nodeLoad}%</span>
+                    </div>
+                `;
+            }
+            grid.innerHTML = nodesHtml;
+        }
+
+        // ==========================================
+        // SLIDE 6: CHAOS MONKEY MINI-GAME
+        // ==========================================
+        function renderChaosRegions() {
+            const container = document.getElementById('chaos-regions');
+            if (!container) return;
+
+            container.innerHTML = regions.map(r => `
+                <div class="p-4 rounded-2xl border-2 transition-all ${r.healthy ? 'bg-slate-800/90 border-emerald-500/50' : 'bg-rose-950/40 border-rose-500 animate-shake'}">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-2xl">${r.healthy ? '🏢' : '🔥'}</span>
+                        <span class="px-2 py-0.5 rounded-md font-mono text-xs font-bold ${r.healthy ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">
+                            ${r.healthy ? 'ACTIVE' : 'OFFLINE'}
+                        </span>
+                    </div>
+                    <div class="font-bold text-white text-base">${r.name}</div>
+                    <div class="text-xs text-slate-400 mt-1">${r.healthy ? 'Serving video streams normally' : r.issue}</div>
+                </div>
+            `).join('');
+
+            const healthyCount = regions.filter(r => r.healthy).length;
+            const statusEl = document.getElementById('chaos-stream-status');
+            if (healthyCount === 0) {
+                statusEl.textContent = 'STREAM: BUFFERING... 💀';
+                statusEl.className = 'px-4 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500 text-rose-300 font-mono font-bold text-sm';
+            } else if (healthyCount < 3) {
+                statusEl.textContent = `FAILOVER ACTIVE (${healthyCount}/3 Regions) 🛡️`;
+                statusEl.className = 'px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500 text-amber-300 font-mono font-bold text-sm';
+            } else {
+                statusEl.textContent = 'STREAM: 100% ONLINE 🎬';
+                statusEl.className = 'px-4 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-mono font-bold text-sm';
+            }
+        }
+
+        function triggerChaos(type) {
+            const healthyRegions = regions.filter(r => r.healthy);
+            const logEl = document.getElementById('chaos-log');
+            if (healthyRegions.length === 0) {
+                logEl.textContent = '💀 All 3 regions are down! Hit "Auto-Heal All" to bring the data centers back!';
+                return;
+            }
+            const target = healthyRegions[0];
+            target.healthy = false;
+
+            const messages = {
+                cable: { issue: 'Undersea fiber cable bitten by a shark!', log: `🦈 CHAOS EVENT: Shark bit cable to ${target.name}! Instant failover rerouted viewers to backup regions with ZERO buffering!` },
+                power: { issue: 'Thunderstorm knocked out local power grid!', log: `⚡ CHAOS EVENT: Lightning hit ${target.name}! Backup regions caught 100% of users in 12 milliseconds!` },
+                coffee: { issue: 'Someone spilled iced latte on the router!', log: `☕ CHAOS EVENT: Coffee spill in ${target.name}! Redundancy saved the day—nobody watching at home noticed!` }
+            };
+
+            target.issue = messages[type].issue;
+            const remaining = regions.filter(r => r.healthy).length;
+            if (remaining === 0) {
+                logEl.textContent = `💥 ${target.name} went down—and now ALL 3 regions are offline! That's why SREs build multi-region backups!`;
+            } else {
+                logEl.textContent = messages[type].log;
+            }
+            renderChaosRegions();
+        }
+
+        function healAllRegions() {
+            regions.forEach(r => { r.healthy = true; r.issue = ''; });
+            const logEl = document.getElementById('chaos-log');
+            if (logEl) logEl.textContent = '🛠️ Automated self-healing restored all 3 data centers to 100% capacity!';
+            renderChaosRegions();
+        }
+
+        // ==========================================
+        // SLIDE 7: 3 AM INCIDENT RESPONSE
+        // ==========================================
+        function chooseIncident(choice) {
+            const fb = document.getElementById('incident-feedback');
+            fb.classList.remove('hidden', 'bg-rose-950/60', 'border-rose-500', 'text-rose-200', 'bg-emerald-950/60', 'border-emerald-500', 'text-emerald-200');
+            if (choice === 'B') {
+                fb.classList.add('bg-emerald-950/60', 'border-emerald-500', 'text-emerald-200');
+                fb.innerHTML = '🎉 <strong>NAILED IT!</strong> Rule #1 of SRE: <em>Stop the bleeding first!</em> Rolling back restores the app for users in seconds. Once everyone can log in again, we calmly investigate the bug.';
+            } else if (choice === 'A') {
+                fb.classList.add('bg-rose-950/60', 'border-rose-500', 'text-rose-200');
+                fb.innerHTML = '😬 <strong>Uh oh!</strong> Yelling at teammates wastes precious minutes while millions of users are locked out—and makes people afraid to speak up!';
+            } else {
+                fb.classList.add('bg-rose-950/60', 'border-rose-500', 'text-rose-200');
+                fb.innerHTML = '⏳ <strong>Too slow!</strong> While you read thousands of lines of code at 3 AM, the app stays broken for 3 hours. Hit Undo (Rollback) first, investigate second!';
+            }
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            renderSlide();
+        };
+    </script>
+</body>
+</html>
